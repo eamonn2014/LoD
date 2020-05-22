@@ -121,6 +121,12 @@ options(datadist='ddist')#
 fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
           control=list(iter.max =250))
 
+pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
+
+pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
+pj$upper<-pj[2][[1]] + c(1) * 1.96*pj[3][[1]]
+names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
+print(pj)
 # for some reason rms::Predict is not working so I have to use predict see lot 2
 Pre <- rms::Predict(fbj)
 
@@ -131,7 +137,7 @@ Pre <- rms::Predict(fbj)
 plot1 <- plot(x=LoD.count$dil, y=LoD.count$Freq/LoD.count$N, pch="o"
               ,xlab=paste0("Dilution Series (LoD dil. series estimate ",dPred,", denoted by red vertical dashed line)"), ylab="Hit Rate"
               , main=paste("Plot of Hit Rates against Dilution Series for Assay \n", assay, 
-                           " with Line of Predicited Probability from the Fitted ",MODEL," Model\n using limit of blank of ", LoB,"Cq", sep= ""), cex.main=1.0, bty='n')
+                           " with Line of Estimated Dilution from the Fitted ",MODEL," Model\n using limit of blank of ", LoB,"Cq", sep= ""), cex.main=1.0, bty='n')
 lines(data$x, data$pred.fp.l, type="l", lwd=1, col="blue") 
 abline(h=hit, lwd=1, col="gray") 
 legend('bottomleft','groups', c(paste0(MODEL, " fit"), paste0(hit*100,"% Hit Rate")),lty = c(1),

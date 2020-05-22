@@ -57,9 +57,11 @@ ui <- fluidPage(theme = shinytheme("journal"), #https://www.rdocumentation.org/p
                 
                 h4("
                 
-The objective of this analysis is to show how to establish the limit of detection for qPCR assays designed to quantify RNA expression from a biological sample using simulated data when the total amount of RNA
-input is constant but the percentage of mutant RNA content is varied. A LoD experiment was performed for each of nine 
-qPCR mutation assays. The outcome of this analysis will identify the concentration of mutant at which 95% of observations are detected, however, the Cq value corresponding to the identified RNA mutant
+The objective of this analysis is to show how to establish the limit of detection for qPCR assays designed to quantify RNA expression 
+from a biological sample when the total amount of RNA
+input is constant but the percentage of mutant RNA content is varied. An LoD experiment was simulated for nine 
+qPCR mutation assays. The outcome of this analysis will identify the concentration of mutant at which 95% of observations are detected, 
+however, the Cq value corresponding to the identified RNA mutant
 content will be predicted from a fitted model to determine a Cq LoD threshold for each assay."),
                 
                 h4("
@@ -68,7 +70,8 @@ reagents was used. RNA derived from three independent pools of FFPE cell
 lines that are lowly positive as determined by a preliminary experiment to determine 'lowly positive' 
 samples for each of the nine assay mutations was used. Each biomarker positive pool sample was
 replicated seven times on each testing day (run) to generate a total of 21 measurements and a total of 42 Cq values (2 Cq values per measurment) per dilution value. 
-The mutant RNA content was subjected to a 2-fold serial dilution encompassing 8 dilution points. It can be seen the more dilute, the higher the Cq value also note the qPCR machine has a technical upper limit of 40 Cq."),
+The mutant RNA content was subjected to a 2-fold serial dilution encompassing 8 dilution points. It can be seen the more dilute, the higher the Cq 
+                   value also note the qPCR machine has a technical upper limit of 40 Cq."),
                 
                 h4("
 Data Analysis: Each assay LoD was established using a regression modelling (logit/probit) approach (EP17-A2). The Cq value was used to determine the assay
@@ -87,14 +90,14 @@ regression model that takes censoring of unobserved or undetected observations i
                 sidebarLayout(
                   
                   sidebarPanel( width=3 ,
-                                h4("Simply select an assay, select a hit rate and select a limit of blank"),
+                               # h4("Options for modelling and presentation:"),
                                 tags$style(type="text/css", ".span8 .well { background-color: #00FFFF; }"),
                                 
                                 
                                 actionButton(inputId='ab1', label="R Shiny ",   icon = icon("th"),   
-                                             onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/proportional-odds-model2/master/app.R', '_blank')"), 
+                                             onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/LoD/master/app.R', '_blank')"), 
                                 actionButton(inputId='ab1', label="R code",   icon = icon("th"),   
-                                             onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/proportional-odds-model2/master/app%20stripped%20code.R', '_blank')"),  
+                                             onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/LoD/master/LoD.R', '_blank')"),  
                                 #actionButton("resample", "Simulate a new sample"),
                                 br(),  
                                 tags$style(".well {background-color:#b6aebd ;}"), 
@@ -129,18 +132,18 @@ regression model that takes censoring of unobserved or undetected observations i
                                   textInput('Hitrate', 
                                             div(h5(tags$span(style="color:blue", "Hit rate"))), "0.95"),
                               textInput('agger', 
-                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs"))), "ye"),
+                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs only affects figure 1 & 3"))), "ye"),
                               
                                #   tags$hr(),
                                   textInput('knots', 
-                                            div(h5(tags$span(style="color:blue", "Number of restricted cubic spline knots"))), "5"),
+                                            div(h5(tags$span(style="color:blue", "Number of restricted cubic spline knots in BJ model"))), "5"),
                                   
                                #   tags$hr(),
                                   textInput('jitt', 
-                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points"))), "no"),
+                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in BJ Model plot"))), "ye"),
                                   
                                   textInput('jitt1', 
-                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter"))), "0.3"),
+                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for BJ Model plot"))), "0.3"),
                                   
                                #   tags$hr(),
                          
@@ -247,7 +250,7 @@ regression model that takes censoring of unobserved or undetected observations i
                  
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                              tabPanel("5 Probit Logit Plot", value=3, 
+                              tabPanel("5 Probit/Logit Plot", value=3, 
                                        
                                        div(plotOutput("plot4", width=fig.width1, height=fig.height7)),  
                                        
@@ -434,24 +437,29 @@ server <- shinyServer(function(input, output   ) {
     fbj <<- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
               control=list(iter.max =250))
     
+    pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
+    
+    pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
+    pj$upper<-pj[2][[1]] + c(1) * 1.96*pj[3][[1]]
+    names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
     # for some reason rms::Predict is not working so I have to use predict see lot 2
     Pre <- rms::Predict(fbj)
     #--------------------------------------------------------------------------------------------------------------
 
     ### Plot count vs dilution point 
    plot1 <- plot(x=LoD.count$dil, y=LoD.count$Freq/LoD.count$N, pch="o"
-         ,xlab=paste0("Dilution Series (LoD dil. series estimate ",dPred,", denoted by red vertical dashed line)"), ylab="Hit Rate"
+         ,xlab=paste0("Dilution Series (LoD dil. series estimate ",p2(d.fp.l),", denoted by red vertical dashed line)"), ylab="Hit Rate"
          , main=paste("Plot of Hit Rates against Dilution Series for Assay \n", assay, 
-                      " with Line of Predicited Probability from the Fitted ",MODEL," Model\n using limit of blank of ", LoB,"Cq", sep= ""), cex.main=1.0, bty='n')
+                      " with Line of Estimated Dilution from the Fitted ",MODEL," Model\n using limit of blank of ", LoB,"Cq", sep= ""), cex.main=1.0, bty='n')
     lines(data$x, data$pred.fp.l, type="l", lwd=1, col="blue")    # the prediction line
     abline(h=hit, lwd=1, col="gray") 
     legend('bottomleft','groups', c(paste0(MODEL, " fit"), paste0(hit*100,"% Hit Rate")),lty = c(1),
            col=c('blue', 'gray'), ncol=1, bty ="n", cex=0.8)
-    text(1.75, 0.80, paste("LoD Dil.Series =", dPred, sep=" "), cex = 0.95)
-    abline(v=dPred, lwd=1, col="red", lty=2) 
+    text(1.75, 0.80, paste("LoD Dil.Series =", p2(d.fp.l), sep=" "), cex = 0.95)
+    abline(v=(d.fp.l), lwd=1, col="red", lty=2) 
   
     #--------------------------------------------------------------------------------------------------------------
-    pj <- Pre
+    #pj <- Pre
     
     pl <-  ggplot(Pre , anova=NULL, pval=FALSE, ylim.=c(20,45)) 
     
@@ -502,14 +510,14 @@ server <- shinyServer(function(input, output   ) {
       
       ggtitle(paste("N=",
                     length(!is.na(zz$dil)),  
-                    ":",assay,"Cq vs. Dilution Series and fitted BJ Model \nLoD Dilution Point ="
+                    ":",assay,", Cq vs. Dilution Series and fitted BJ Model \nLoD Dilution Point ="
                     , p2(d.fp.l), "; LoD Cq = ", p2(pj[1,2]), ", 95%CI (", p2(pj[1,4]), ",", p2(pj[1,5])     ,")", sep=" ")) +
     
       geom_ribbon(data=zz, 
                   aes(x= dil,
                       ymin=lower, ymax=upper, alpha=0.2,fill="purple") ) +
       
-      labs(caption = paste0("- Cq values do not exceed machine upper limit of 40\n- LoD dilution series estimate ",dPred,", denoted by vertical dashed line")) +
+      labs(caption = paste0("- Cq values do not exceed machine upper limit of 40\n- LoD dilution series estimate ",p2(d.fp.l),", denoted by vertical dashed line")) +
  
       geom_hline(yintercept=LoB, colour="lightgray", linetype="dashed") +
       geom_hline(yintercept=pj[1,2], colour="blue", linetype="dashed") +
