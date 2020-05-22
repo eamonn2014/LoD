@@ -77,8 +77,8 @@ The mutant RNA content was subjected to a 2-fold serial dilution encompassing 8 
 Data Analysis: Each assay LoD was established using a regression modelling (logit/probit) approach (EP17-A2). The Cq value was used to determine the assay
 detection calls based on the assay specific verified or established limit of blank (LoB) thresholds. The hit rate (percentage of detection calls)
 was calculated from the total replicates tested at each dilution concentration, and modelled against the dilution using the logit/probit model. 
-It should be noted that the logit and probit models are essentially the same. The LoD was established as the Cq value at which the lowest 
-concentration of analyte can be routinely detected; this is defined as Cq value corresponding to the dilution concentration at which 95% 
+It should be noted that the logit and probit models are essentially the same. The LoD will be established as the Cq value at which the lowest 
+concentration of analyte can be routinely detected; more concretely defined as Cq value corresponding to the dilution concentration at which 95% 
 of the observed Cq values for samples tested are below the LoB. The LoD dilution value was determined from the regression line of the fitted logit/probit model. 
 The corresponding Cq value was predicted from the fit of the Buckley-James (BJ) censored data 
 regression model that takes censoring of unobserved or undetected observations into consideration rather than imputing them as 40 Cq.                
@@ -338,7 +338,7 @@ hit rate criteria. Therefore the LoD estimation would benefit from further dilut
 
 server <- shinyServer(function(input, output   ) {
   
-  shinyalert("Welcome! \nBet you've never heard of the Buckley-James model!",
+  shinyalert("Welcome! \nEver heard of the Buckley-James model?",
              "Establishing Assay Limit of Detection", 
              type = "info")
    
