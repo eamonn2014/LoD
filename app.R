@@ -197,7 +197,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                            column(width = 5, offset = 0, style='padding:1px;',
                                                   
                                                   div(plotOutput("plot3x",  width=fig.width7, height=fig.height7)) ,
-                                                  h4(paste("Figure 2. Fitted BJ model, finding the Cq reading back from estimated dilution")),
+                                                  h4(paste("Figure 2. Fitted BJ model, finding the Cq reading back from estimated dilution.\n Horizontal jitter added to improve visualisation.")),
                                            ))),
                                       
                                        
