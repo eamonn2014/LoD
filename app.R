@@ -71,7 +71,7 @@ lines that are lowly positive as determined by a preliminary experiment to deter
 samples for each of the nine assay mutations was used. Each biomarker positive pool sample was
 replicated seven times on each testing day (run) to generate a total of 21 measurements and a total of 42 Cq values (2 Cq values per measurment) per dilution value. 
 The mutant RNA content was subjected to a 2-fold serial dilution encompassing 8 dilution points. It can be seen the more dilute, the higher the Cq 
-                   value also note the qPCR machine has a technical upper limit of 40 Cq."),
+                   value, also note the qPCR machine has a technical upper limit of 40 Cq."),
                 
                 h4("
 Data Analysis: Each assay LoD was established using a regression modelling (logit/probit) approach (EP17-A2). The Cq value was used to determine the assay
@@ -189,7 +189,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                          column(width = 6, offset = 0, style='padding:1px;',
                                                 
                                                 div(plotOutput("plot1",  width=fig.width7, height=fig.height7)),
-                                                h4(paste("Figure 1. Finding the dilution that satisfies the hit rate")), 
+                                                h4(paste("Figure 1. Estimating the dilution that satisfies the hit rate")), 
                                          ) ,
                                          
                                          
@@ -197,7 +197,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                            column(width = 5, offset = 0, style='padding:1px;',
                                                   
                                                   div(plotOutput("plot3x",  width=fig.width7, height=fig.height7)) ,
-                                                  h4(paste("Figure 2. Fitted BJ model, finding the Cq by reading back from the dilution")),
+                                                  h4(paste("Figure 2. Fitted BJ model, finding the Cq reading back from estimated dilution")),
                                            ))),
                                       
                                        
@@ -338,7 +338,7 @@ hit rate criteria. Therefore the LoD estimation would benefit from further dilut
 
 server <- shinyServer(function(input, output   ) {
   
-  shinyalert("Welcome! \nExplore!",
+  shinyalert("Welcome! \nBet you've never heard of the Buckley-James model!",
              "Establishing Assay Limit of Detection", 
              type = "info")
    
