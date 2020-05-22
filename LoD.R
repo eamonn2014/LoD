@@ -10,7 +10,7 @@ list.of.packages <- c("directlabels", "ggplot2" , "xtable", "doBy", "VCA", "resh
                       "lmec", "coxme", "lme4",  
                       "arm", "rms", "plyr",
                       "directlabels","shiny","shinyWidgets","shinythemes","DT","shinyalert",
-                      "Hmisc","reshape","rms","ggplot2","tidyverse","digest")
+                      "Hmisc","reshape","rms","ggplot2","tidyverse","digest","DT")
 
 lapply(list.of.packages, require, character.only = TRUE)
 
@@ -86,6 +86,11 @@ if (agger %in% "yes") {
   
 }
 
+# use this info for the logit probit model plot
+x =seq(1, 8, 0.001)
+data <- tryCatch(data.frame(x , pred.fp.l = predict(fp.l, data.frame(dil=x), type="resp")), error=function(e) NULL)
+
+
 # use model coefficients to estimate dilution at hit rate of 95% 
 
 if (MODEL %in% "logit") {
@@ -119,12 +124,6 @@ fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="iden
 # for some reason rms::Predict is not working so I have to use predict see lot 2
 Pre <- rms::Predict(fbj)
 
-#### PREDICT LoD Cq Values
-pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
-
-pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
-pj$upper<-pj[2][[1]] + c(1)  * 1.96*pj[3][[1]]
-names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
 #--------------------------------------------------------------------------------------------------------------
 
 
@@ -133,7 +132,7 @@ plot1 <- plot(x=LoD.count$dil, y=LoD.count$Freq/LoD.count$N, pch="o"
               ,xlab=paste0("Dilution Series (LoD dil. series estimate ",dPred,", denoted by red vertical dashed line)"), ylab="Hit Rate"
               , main=paste("Plot of Hit Rates against Dilution Series for Assay \n", assay, 
                            " with Line of Predicited Probability from the Fitted ",MODEL," Model\n using limit of blank of ", LoB,"Cq", sep= ""), cex.main=1.0, bty='n')
-#lines(data$x, data$pred.fp.l, type="l", lwd=1, col="blue") 
+lines(data$x, data$pred.fp.l, type="l", lwd=1, col="blue") 
 abline(h=hit, lwd=1, col="gray") 
 legend('bottomleft','groups', c(paste0(MODEL, " fit"), paste0(hit*100,"% Hit Rate")),lty = c(1),
        col=c('blue', 'gray'), ncol=1, bty ="n", cex=0.8)
@@ -141,16 +140,8 @@ text(1.75, 0.80, paste("LoD Dil.Series =", dPred, sep=" "), cex = 0.95)
 abline(v=dPred, lwd=1, col="red", lty=2) 
 
 #--------------------------------------------------------------------------------------------------------------
-#### PREDICT LoD Cq Values
-pjx <- as.data.frame(   predict(fbj, type="lp", se.fit=T))
 
-pjx$lower<-pjx[,1] + c(-1) * 1.96*pjx[,2]
-pjx$upper<-pjx[,1] + c(+1) * 1.96*pjx[,2]
-pjx <- unique(pjx)
-
-Pre$yhat  <- pjx$linear.predictors
-Pre$lower <- pjx$lower
-Pre$upper <- pjx$upper
+pj <- Pre
 
 pl <-  ggplot(Pre , anova=NULL, pval=FALSE, ylim.=c(20,45)) 
 
@@ -177,16 +168,6 @@ if (jitt %in% "yes") {
 } 
 #-------------------------------------------------------------------------------------
 
-# PREDICT LoD Cq Values
-pjx<-as.data.frame(   predict(fbj, type="lp", se.fit=T))
-
-pjx$lower<-pjx[,1] + c(-1) * 1.96*pjx[,2]
-pjx$upper<-pjx[,1] + c(+1) * 1.96*pjx[,2]
-pjx <- unique(pjx)
-
-Pre$yhat  <- pjx$linear.predictors
-Pre$lower <- pjx$lower
-Pre$upper <- pjx$upper
 
 ddx <- merge(ddx, Pre)
 zz <- ddx
@@ -263,7 +244,7 @@ namez <- c("Assay", "Biological Sample", "Sample Pool", "Dilution", "Run", "Repl
 
 names(foo) <- namez
 rownames(foo) <- NULL
-library(DT)
+
 
 datatable(foo,   
           
@@ -285,3 +266,5 @@ datatable(foo,
 # formatRound(
 #    columns= namez,   
 #    digits=c(0,1,1,1,1,1,1,2,2)  )
+
+ 

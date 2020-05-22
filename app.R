@@ -283,7 +283,7 @@ regression model that takes censoring of unobserved or undetected observations i
                               
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                              tabPanel("Probit Logit Plot", value=3, 
+                              tabPanel("5 Probit Logit Plot", value=3, 
                                        
                                        #  div(plotOutput("reg.plot99", width=fig.width1, height=fig.height1)),
                                        div(plotOutput("plot4", width=fig.width1, height=fig.height7)),  
@@ -300,7 +300,7 @@ regression model that takes censoring of unobserved or undetected observations i
                               
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
-                              tabPanel("BJ Model plot", value=3, 
+                              tabPanel("6 BJ Model plot", value=3, 
                                        
                                        div(plotOutput("plot3", width=fig.width1, height=fig.height7)),  
                                 
@@ -313,22 +313,10 @@ regression model that takes censoring of unobserved or undetected observations i
                                        
                               ),
                               
-                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                              
-                              tabPanel("BJ Model plot alt.", value=3, 
-                                       
-                                      div(plotOutput("plot2", width=fig.width1, height=fig.height7)),  
-                                       
-                                       
-                                       fluidRow(
-                                         column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 5. Finding the dilution that satisfies the hit rate")), 
-                                         )),
-                                        
-                              ),
+                         
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
-                              tabPanel("5 Conclusion", value=3, 
+                              tabPanel("7 Conclusion", value=3, 
                                         
                                         h4(paste("We have shown how to establish LoD values for the assays. 
                                         Briefly, step 1, For each dilution, score 0 or 1 if Cq is above or below LoB. 
@@ -353,11 +341,23 @@ hit rate criteria. Therefore the LoD estimation would benefit from further dilut
                                           )),
                                ),
                               
-                              tabPanel("6 Data", value=3, 
+                              tabPanel("8 Data", value=3, 
                                        DT::dataTableOutput("table1"),
                                        
-                              ) 
+                              ) ,
+                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
+                              tabPanel("9 BJ Model plot alt.", value=3, 
+                                       
+                                       div(plotOutput("plot2", width=fig.width1, height=fig.height7)),  
+                                       
+                                       
+                                       fluidRow(
+                                         column(width = 7, offset = 0, style='padding:1px;',
+                                                h4(paste("Figure 5. Finding the dilution that satisfies the hit rate")), 
+                                         )),
+                                       
+                              )
                               
                               
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   END NEW   
@@ -468,20 +468,14 @@ server <- shinyServer(function(input, output   ) {
     options(datadist='ddist')#
     
     #--------------------------------------------------------------------------------------------------------------
+    ## <<- assignemnt is necessary!!
     fbj <<- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
               control=list(iter.max =250))
     
     # for some reason rms::Predict is not working so I have to use predict see lot 2
     Pre <- rms::Predict(fbj)
     
-    #Pre <-  predict(fbj, type="lp", newdata=dPred, se.fit=T)
-    
-    #### PREDICT LoD Cq Values
-    pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
-    
-    pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
-    pj$upper<-pj[2][[1]] + c(1)  * 1.96*pj[3][[1]]
-    names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
+   
     #--------------------------------------------------------------------------------------------------------------
     
     
@@ -498,16 +492,7 @@ server <- shinyServer(function(input, output   ) {
     abline(v=dPred, lwd=1, col="red", lty=2) 
   
     #--------------------------------------------------------------------------------------------------------------
-    #### PREDICT LoD Cq Values
-    pjx <- as.data.frame(   predict(fbj, type="lp", se.fit=T))
-    
-    pjx$lower<-pjx[,1] + c(-1) * 1.96*pjx[,2]
-    pjx$upper<-pjx[,1] + c(+1) * 1.96*pjx[,2]
-    pjx <- unique(pjx)
- 
-    Pre$yhat  <- pjx$linear.predictors
-    Pre$lower <- pjx$lower
-    Pre$upper <- pjx$upper
+    pj <- Pre
     
     pl <-  ggplot(Pre , anova=NULL, pval=FALSE, ylim.=c(20,45)) 
     
@@ -533,18 +518,7 @@ server <- shinyServer(function(input, output   ) {
       
     } 
     #-------------------------------------------------------------------------------------
-    
-    # PREDICT LoD Cq Values
-    pjx<-as.data.frame(   predict(fbj, type="lp", se.fit=T))
 
-    pjx$lower<-pjx[,1] + c(-1) * 1.96*pjx[,2]
-    pjx$upper<-pjx[,1] + c(+1) * 1.96*pjx[,2]
-    pjx <- unique(pjx)
-
-    Pre$yhat  <- pjx$linear.predictors
-    Pre$lower <- pjx$lower
-    Pre$upper <- pjx$upper
-    
     ddx <- merge(ddx, Pre)
     zz <- ddx
 
@@ -630,24 +604,6 @@ server <- shinyServer(function(input, output   ) {
     X <- Loddp()
     dd <- X$dd
     Pre <- X$Pre
-    
-
-    # fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-    #           control=list(iter.max =250))
-    # Pre <- rms::Predict(fbj)
-
-    #--------------------------------------------------------------------------------------------------------------
-    #--------------------------------------------------------------------------------------------------------------
-    #### PREDICT LoD Cq Values
-    pjx<-as.data.frame(   predict(fbj, type="lp", se.fit=T))
-
-    pjx$lower<-pjx[,1] + c(-1) * 1.96*pjx[,2]
-    pjx$upper<-pjx[,1] + c(+1) * 1.96*pjx[,2]
-    pjx <- unique(pjx)
-
-    Pre$yhat  <- pjx$linear.predictors
-    Pre$lower <- pjx$lower
-    Pre$upper <- pjx$upper
 
     pl <-  ggplot(Pre , anova=NULL, pval=FALSE, ylim.=c(20,45))
 
