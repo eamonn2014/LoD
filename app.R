@@ -310,20 +310,20 @@ hit rate criteria. Therefore the LoD estimation would benefit from further dilut
                               tabPanel("8 Data", value=3, 
                                        DT::dataTableOutput("table1"),
                                        
-                              ) ,
+                              ) # ,
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
-                              tabPanel("9 BJ Model plot alt.", value=3, 
-                                       
-                                       div(plotOutput("plot2", width=fig.width1, height=fig.height7)),  
-                                       
-                                       
-                                       fluidRow(
-                                         column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 5. Finding the dilution that satisfies the hit rate")), 
-                                         )),
-                                       
-                              )
+                              # tabPanel("9 BJ Model plot alt.", value=3, 
+                              #          
+                              #          div(plotOutput("plot2", width=fig.width1, height=fig.height7)),  
+                              #          
+                              #          
+                              #          fluidRow(
+                              #            column(width = 7, offset = 0, style='padding:1px;',
+                              #                   h4(paste("Figure 5. Finding the dilution that satisfies the hit rate")), 
+                              #            )),
+                              #          
+                              #)
                               
                               
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   END NEW   
