@@ -143,8 +143,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                             div(h5(tags$span(style="color:blue", "Enter magnitude of jitter"))), "0.3"),
                                   
                                #   tags$hr(),
-                                       
-                               #   tags$hr(),
+                         
                                   
                                    div(h5("References:")),  
                                    tags$a(href = "https://en.wikipedia.org/wiki/Real-time_polymerase_chain_reaction", tags$span(style="color:blue", "[1] qPCR wiki"),),   
@@ -153,11 +152,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                    div(p(" ")),
                                   tags$a(href = "https://community.clsi.org/media/1430/ep17a2_sample.pdf", tags$span(style="color:blue", "[3] EP17-A2 Guidance"),),
                                    div(p(" ")),
-                                  # tags$a(href = "https://blogs.sas.com/content/iml/2017/09/20/fishers-transformation-correlation.html", tags$span(style="color:blue", "[4] xxxxxx"),),  
-                                  # div(p(" ")),
-                                  # tags$a(href = "https://rdrr.io/cran/rms/man/predict.lrm.html", tags$span(style="color:blue", "prediction of model mean"),),  
-                                  # div(p(" ")),
-                                  # tags$hr()
+                               
                                 )
                                 
                                 
@@ -185,9 +180,7 @@ regression model that takes censoring of unobserved or undetected observations i
                               
                               
                               tabPanel("1 Establishing LoD", value=7, 
-                                      # h4("xxxxxxx"),
-                                       
-                                       
+                              
                                        fluidRow(
                                          column(width = 6, offset = 0, style='padding:1px;',
                                                 
@@ -208,9 +201,7 @@ regression model that takes censoring of unobserved or undetected observations i
                               
                               tabPanel("2 Buckley James (BJ) Model", value=3, 
                                        
-                                       #  div(plotOutput("reg.plot99", width=fig.width1, height=fig.height1)),
-                                       
-                                       div( verbatimTextOutput("datx") ),
+                                         div( verbatimTextOutput("datx") ),
                                         
                                        fluidRow(
                                          column(width = 7, offset = 0, style='padding:1px;',
@@ -223,7 +214,6 @@ regression model that takes censoring of unobserved or undetected observations i
                               
                               tabPanel("3 BJ Model Predictions", value=3, 
                                        
-                                       #  div(plotOutput("reg.plot99", width=fig.width1, height=fig.height1)),
                                        div( verbatimTextOutput("dat") ),
                                       
                                       
@@ -250,42 +240,15 @@ regression model that takes censoring of unobserved or undetected observations i
                                         # h4("Table 2 xxxxxxx"),
                                          fluidRow(
                                            column(width = 6, offset = 0, style='padding:1px;',
-                                                  
-                                                  # splitLayout(
-                                                  #     textInput("bas1", div(h5("xxxxxxx")), value="1", width=100),
-                                                  #     textInput("bas2", div(h5("xxxxxxx")),value="2", width=100)
-                                                  # ),
-                                                  # 
-                                                  
-                                                  #  div( verbatimTextOutput("reg.summary3")),
-                                                  
-                                                  #  h4(htmlOutput("textWithNumber",) ),
+                                               
                                            ))),
                                        
                               ) ,
-                              
-                              
-                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                              # tabPanel("x x", value=3, 
-                              #          
-                              #          #  div(plotOutput("reg.plot99", width=fig.width1, height=fig.height1)),
-                              #          div(plotOutput("plotx", width=fig.height7, height=fig.height7)),  
-                              #          
-                              #          
-                              #          fluidRow(
-                              #            column(width = 7, offset = 0, style='padding:1px;',
-                              #                   h4(paste("Table 2. Model regression predictions")),
-                              #                   
-                              #            )),
-                              #          
-                              #          
-                              # ),
-                              
+                 
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               tabPanel("5 Probit Logit Plot", value=3, 
                                        
-                                       #  div(plotOutput("reg.plot99", width=fig.width1, height=fig.height1)),
                                        div(plotOutput("plot4", width=fig.width1, height=fig.height7)),  
                                        
                                        
@@ -332,11 +295,10 @@ in occurrence of fitted probabilities being numerically 0 or 1. The near 100% hi
 implies that the experimental data for the two assays do not meet the desirable CLSI EP17 A2 
 hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays.")), 
                                          
-                                        
-                                        
+
                                         fluidRow(
                                           column(width = 7, offset = 0, style='padding:1px;',
-                                                 #h4(paste("Figure 4. xxxxxxx")), 
+                                              
                                                  
                                           )),
                                ),
@@ -432,7 +394,7 @@ server <- shinyServer(function(input, output   ) {
     
     # Predicting LoD (dilution point)....I use model coefficients instead see below
     
-     # use this info for the logit probit model plot
+     # use this info for the logit/probit model plot
      x =seq(1, 8, 0.001)
      data <- tryCatch(data.frame(x , pred.fp.l = predict(fp.l, data.frame(dil=x), type="resp")), error=function(e) NULL)
     
@@ -474,11 +436,8 @@ server <- shinyServer(function(input, output   ) {
     
     # for some reason rms::Predict is not working so I have to use predict see lot 2
     Pre <- rms::Predict(fbj)
-    
-   
     #--------------------------------------------------------------------------------------------------------------
-    
-    
+
     ### Plot count vs dilution point 
    plot1 <- plot(x=LoD.count$dil, y=LoD.count$Freq/LoD.count$N, pch="o"
          ,xlab=paste0("Dilution Series (LoD dil. series estimate ",dPred,", denoted by red vertical dashed line)"), ylab="Hit Rate"
@@ -503,8 +462,6 @@ server <- shinyServer(function(input, output   ) {
       ggtitle(paste("Assay ",assay," Plot of Cq vs. Dilution Series with the Fitted BJ Model \nLoD Dilution Point ="
                     , p2(d.fp.l), "; LoD Cq Value = ", p2(pj[1,2]), ", 95%CI (", p2(pj[1,4]), ",", p2(pj[1,5])     ,")", sep=" "))
    
-      
-
     #__________________________________________________________________________________________
     # it was difficult to get the ribbon added to the data.
     # The approach I used before works and is implemented below.
@@ -521,8 +478,8 @@ server <- shinyServer(function(input, output   ) {
 
     ddx <- merge(ddx, Pre)
     zz <- ddx
-
     WW <-jitt1
+    
     #-------------------------------------------------------------------------------------
     
     plot3 <- ggplot() +
@@ -557,11 +514,7 @@ server <- shinyServer(function(input, output   ) {
       geom_hline(yintercept=LoB, colour="lightgray", linetype="dashed") +
       geom_hline(yintercept=pj[1,2], colour="blue", linetype="dashed") +
       geom_vline(xintercept=d.fp.l, colour="blue", linetype="dashed") 
-      #geom_segment(aes(x=d.fp.l,   xend=d.fp.l, y=20,        yend=pj[1,2]), colour="blue", linetype="dashed") +
-      #geom_segment(aes(x=0.7,      xend=d.fp.l, y=pj[1,2],   yend=pj[1,2]), colour="blue", linetype="dashed") #+
-      #scale_x_continuous(expand = c(0,0)) +
-      #scale_y_continuous(expand = c(0,0)) 
-    
+
     plot3 <- plot3 +labs(y=paste0(assay, " Cq"),  x=paste("Dilution Series")) +    
     
             theme(legend.position="none") +
@@ -591,37 +544,9 @@ server <- shinyServer(function(input, output   ) {
     return(list(plot1=plot1, plot2=plot2, fbj=fbj,  pj=pj, dd=dd, plot3=plot3 , Pre=Pre ))  
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   })
-  
-   
-  # improving the plot.
-  
-  output$plotx <- renderPlot({
-
-    #assay <- (unlist(strsplit(input$Assay,",")))
-    knots <- as.numeric(unlist(strsplit(input$knots,",")))
-    LoB <- as.numeric(unlist(strsplit(input$LoB,",")))
-
-    X <- Loddp()
-    dd <- X$dd
-    Pre <- X$Pre
-
-    pl <-  ggplot(Pre , anova=NULL, pval=FALSE, ylim.=c(20,45))
-
-    plot2 <- pl + geom_point(data=dd, aes(x = dil, y = CT )) +
-      xlab("Dilution Series") + ylab("Cq value") +
-      geom_hline(yintercept=LoB, colour="gray", linetype="solid") +
-      geom_hline(yintercept=pj[1,2], colour="blue", linetype="dashed") +
-      ggtitle(paste("Assay ",assay," Plot of Cq vs. Dilution Series with the Fitted BJ Model \nLoD Dilution Point ="
-                    , p2(d.fp.l), "; LoD Cq Value = ", p2(pj[1,2]), ", 95%CI (", p2(pj[1,4]), ",", p2(pj[1,5])     ,")", sep=" "))
-
-    print(plot2)
-  })
-
 
   #________________________________________________________________________________________________
   #________________________________________________________________________________________________
-  #________________________________________________________________________________________________
-  
  
   #https://stackoverflow.com/questions/44205137/plotting-the-same-output-in-two-tabpanels-in-shiny
   output$plot1 <- output$plot4  <- renderPlot({         
@@ -644,8 +569,6 @@ server <- shinyServer(function(input, output   ) {
     plot(x$plot3)
 
   })
-  
-
   
 
   #________________________________________________________________________________________________
