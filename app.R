@@ -450,7 +450,7 @@ server <- shinyServer(function(input, output   ) {
     ### Plot count vs dilution point 
    plot1 <- plot(x=LoD.count$dil, y=LoD.count$Freq/LoD.count$N, pch="o"
          ,xlab=paste0("Dilution Series (LoD dil. series estimate ",p2(d.fp.l),", denoted by red vertical dashed line)"), ylab="Hit Rate"
-         , main=paste("Plot of Hit Rates against Dilution Series for Assay \n", assay, 
+         , main=paste("Plot of Hit Rates against Dilution Series for \n", assay, 
                       " with Line of Estimated Dilution from the Fitted ",MODEL," Model\n using limit of blank of ", LoB,"Cq", sep= ""), cex.main=1.0, bty='n')
     lines(data$x, data$pred.fp.l, type="l", lwd=1, col="blue")    # the prediction line
     abline(h=hit, lwd=1, col="gray") 
