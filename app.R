@@ -59,14 +59,14 @@ ui <- fluidPage(theme = shinytheme("journal"), #https://www.rdocumentation.org/p
                 
 The objective of this analysis is to show how to establish the limit of detection for qPCR assays designed to quantify RNA expression 
 from a biological sample when the total amount of RNA
-input is constant but the percentage of mutant RNA content is varied. An LoD experiment was simulated for nine 
+input is constant but the percentage of mutant RNA content is varied [1,2]. An LoD experiment was simulated for nine 
 qPCR mutation assays. The outcome of this analysis will identify the concentration of mutant at which 95% of observations are detected, 
 however, the Cq value corresponding to the identified RNA mutant
 content will be predicted from a fitted model to determine a Cq LoD threshold for each assay."),
                 
                 h4("
 Methods: A study was designed in accordance with CLSI EP17-A2, with the exception that one lot of 
-reagents was used. RNA was derived from three independent pools of cell 
+reagents was used [3]. RNA was derived from three independent pools of cell 
 lines that are lowly positive as determined by a preliminary experiment to determine 'lowly positive' 
 samples for each of the nine assay mutations was used. Each biomarker positive pool sample was
 replicated seven times on each testing day (run) to generate a total of 21 measurements and a total of 42 Cq values (2 Cq values per measurment) per dilution value. 
@@ -149,10 +149,11 @@ regression model that takes censoring of unobserved or undetected observations i
                          
                                   
                                    div(h5("References:")),  
-                                   tags$a(href = "https://en.wikipedia.org/wiki/Real-time_polymerase_chain_reaction", tags$span(style="color:blue", "[1] qPCR wiki"),),   
+                              tags$a(href = "https://en.wikipedia.org/wiki/Detection_limit",  tags$span(style="color:blue", "[1] LoD wiki"),),   
+                              div(p(" ")),
+                                   tags$a(href = "https://en.wikipedia.org/wiki/Real-time_polymerase_chain_reaction", tags$span(style="color:blue", "[2] qPCR wiki"),),   
                                    div(p(" ")),
-                                   tags$a(href = "https://en.wikipedia.org/wiki/Detection_limit",  tags$span(style="color:blue", "[2] LoD wiki"),),   
-                                   div(p(" ")),
+                                 
                                   tags$a(href = "https://community.clsi.org/media/1430/ep17a2_sample.pdf", tags$span(style="color:blue", "[3] EP17-A2 Guidance"),),
                                    div(p(" ")),
                                
