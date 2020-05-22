@@ -66,7 +66,7 @@ content will be predicted from a fitted model to determine a Cq LoD threshold fo
                 
                 h4("
 Methods: A study was designed in accordance with CLSI EP17-A2, with the exception that one lot of 
-reagents was used. RNA derived from three independent pools of FFPE cell 
+reagents was used. RNA was derived from three independent pools of cell 
 lines that are lowly positive as determined by a preliminary experiment to determine 'lowly positive' 
 samples for each of the nine assay mutations was used. Each biomarker positive pool sample was
 replicated seven times on each testing day (run) to generate a total of 21 measurements and a total of 42 Cq values (2 Cq values per measurment) per dilution value. 
