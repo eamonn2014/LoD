@@ -291,7 +291,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                        
                                        fluidRow(
                                          column(width = 12, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 4. Fitted BJ model. Finding the LoD Cq by reading back from the dilution (estimated from either logistic or probit regression) that satisfies the required hit rate ; horizontal jitter added to data points to aid visualisation")),
+                                                h4(paste("Figure 3. Fitted BJ model. Finding the LoD Cq by reading back from the dilution (estimated from either logistic or probit regression) that satisfies the required hit rate ; horizontal jitter added to data points to aid visualisation")),
                                                 
                                          )),
                                        
@@ -307,7 +307,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                        
                                        fluidRow(
                                          column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 1. Finding the dilution that satisfies the hit rate")), 
+                                                h4(paste("Figure 4. Finding the dilution that satisfies the hit rate")), 
                                          )),
                                        
                                        
@@ -322,7 +322,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                        
                                        fluidRow(
                                          column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 1. Finding the dilution that satisfies the hit rate")), 
+                                                h4(paste("Figure 5. Finding the dilution that satisfies the hit rate")), 
                                          )),
                                         
                               ),
