@@ -132,7 +132,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                   textInput('Hitrate', 
                                             div(h5(tags$span(style="color:blue", "Hit rate"))), "0.95"),
                               textInput('agger', 
-                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs only affects figure 1 & 3"))), "ye"),
+                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs only affects figures 1 & 3"))), "ye"),
                               
                                #   tags$hr(),
                                   textInput('knots', 
