@@ -46,6 +46,7 @@ assa <- unique(d99$assay)
 
 assay <- "Assay02"
 MODEL <- "logit"
+MODEL2 <- "Buckley James"
 LoB <- 39
 hit <- .95
 jitt <- "yes"
@@ -118,8 +119,19 @@ ddist <<- datadist(dd)
 options(datadist='ddist')#
 
 #--------------------------------------------------------------------------------------------------------------
-fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-          control=list(iter.max =250))
+if (MODEL2 %in% "Buckley James") {
+  
+  tag <- "BJ"
+  
+  fbj <<- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+             control=list(iter.max =250))
+  
+} else if  ( MODEL2 %in% 'Ordinary Least Squares') {
+  
+  tag <- "Ols"  
+  
+  fbj <<- ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE)
+}
 
 pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
 
