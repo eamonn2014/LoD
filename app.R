@@ -12,6 +12,8 @@
     #                       "Hmisc","reshape", "tidyverse","digest")
     # 
     # lapply(list.of.packages, library, character.only = TRUE)
+    
+    # to deploy need to require like this:
     library("shiny")
     library("shinyWidgets")
     library("shinythemes")
@@ -30,7 +32,6 @@
     library("vcd")
     library("car")
     library("MASS")
-    library("R2wd")
     library("tables")
     library("gtools")
     library("rtf")
@@ -39,20 +40,11 @@
     library("lmec")
     library("coxme")
     library("lme4")
-    
     library("arm")  
     library("rms")
     library("plyr")
     library("lme4")
-    library("lme4")
-    library("lme4")
-    
-    
-    
-    
-    
-    
-
+   
     #options(mc.cores = parallel::detectCores())
     #rstan_options(auto_write = TRUE)
     options(max.print=1000000)    
