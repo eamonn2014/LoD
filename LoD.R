@@ -8,7 +8,7 @@ set.seed(333) # reproducible
 list.of.packages <- c("directlabels", "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
                       "MASS","R2wd","tables","gtools", "rtf", "binom", "coin", 
                       "lmec", "coxme", "lme4",  
-                      "arm", "rms", "plyr",
+                      "arm", "rms", "dplyr",
                       "directlabels","shiny","shinyWidgets","shinythemes","DT","shinyalert",
                       "Hmisc","reshape","rms","ggplot2","tidyverse","digest","DT")
 
@@ -81,11 +81,10 @@ if (agger %in% "yes") {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #  we can show we get the sam results even if aggregate, as our model does not include covariates
   LoD.count<- LoD.count[,c("dil","Freq","N")]
-  detach(package:plyr)    
-  library(dplyr)
+ 
   LoD.count <- LoD.count %>%
-    group_by(dil) %>%
-    summarize(Freq=sum(Freq), N=sum(N))
+    dplyr::group_by(dil) %>%
+    dplyr::summarize(Freq=sum(Freq), N=sum(N))
   
   fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link=MODEL)), error=function(e) NULL)
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

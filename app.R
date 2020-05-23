@@ -42,9 +42,10 @@
     library("lme4")
     library("arm")  
     library("rms")
-    library("plyr")
+    
     library("lme4")
-   
+    library("dplyr")
+    
     #options(mc.cores = parallel::detectCores())
     #rstan_options(auto_write = TRUE)
     options(max.print=1000000)    
@@ -472,11 +473,10 @@ server <- shinyServer(function(input, output   ) {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #  we can show we get the sam results even if aggregate, as our model does not include covariates
       LoD.count<- LoD.count[,c("dil","Freq","N")]
-      detach(package:plyr)    
-      library(dplyr)
+   
       LoD.count <- LoD.count %>%
-      group_by(dil) %>%
-      summarize(Freq=sum(Freq), N=sum(N))
+      dplyr::group_by(dil) %>%
+      dplyr::summarize(Freq=sum(Freq), N=sum(N))
     
       fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link=MODEL)), error=function(e) NULL)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
