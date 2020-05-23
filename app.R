@@ -357,7 +357,7 @@ a better description of the data, perhaps also  examine residual explained varia
 
                               tabPanel("10 Results", value=3, 
                                        
-                                       div( verbatimTextOutput("pow1") ),
+                                       div( verbatimTextOutput("pow2") ),
                                        
                                        
                                        fluidRow(
@@ -648,8 +648,7 @@ server <- shinyServer(function(input, output   ) {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   })
 
-  #________________________________________________________________________________________________
-  
+  #_____________________________________________________________________________________________
   ## loop over all assays for a summary presentation
   
   estimates <- reactive({
@@ -664,7 +663,7 @@ server <- shinyServer(function(input, output   ) {
   
     knots <- as.numeric(unlist(strsplit(input$knots,",")))
  
-    #--------------------------------------------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------
     #-----------------------------------------------------------------------------------------
     J<-unique(assa)
     k<-length(J)
@@ -672,7 +671,9 @@ server <- shinyServer(function(input, output   ) {
     dnam = list( Assay =J, component=c("dilution", "LoD Cq",  "LoD Lower 95% CI", "LoD Upper 95% CI") )
     pow1 <- array( NA, dim=sapply(dnam, length), dimnames=dnam )
     
-
+    # oldw <- getOption("warn")
+    # options(warn = -1)
+    
     for ( i in 1:k) { 
       
       dd<-d99[(d99$assay %in% J[i]),] 
@@ -716,20 +717,30 @@ server <- shinyServer(function(input, output   ) {
       
       fbj <- pj <- NULL
       
-      ## <<- assignemnt is necessary!!
-      
-      if (MODEL2 %in% "Buckley James") {
+      ## <<- assignemnt is not necessary?
+   
 
-        fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-                   control=list(iter.max =250))
+      if (MODEL2 %in% "Buckley James") {
+    
+        invisible(capture.output( fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+                                       control=list(iter.max =250)))      ))
         
+        # suppressWarnings(suppressMessages(fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+        #            control=list(iter.max =250))) )) 
+               
+        # suppressMessages({ 
+        #   
+        #   fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+        #              control=list(iter.max =250))) 
+        #   })
+        # 
       } else if  ( MODEL2 %in% 'Ordinary Least Squares') {
         
-        fbj <- ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE)
+        fbj <- (ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE))
+         
       }
-      
-      #print(fbj)
-      
+
+      # 
       #### PREDICT LoD Cq Values
       pj <- as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
       
@@ -738,19 +749,27 @@ server <- shinyServer(function(input, output   ) {
       names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
       
       pow1[i,] <-  c(p5(d.fp.l), p5(pj[1,2]), p5(pj[1,4]), p5(pj[1,5]))
+     
     }
+     
     #-----------------------------------------------------------------------------------------
-    
-    return(list(pow1=pow1))  
-    
+    pow1 <- plyr::adply(pow1, 1, c)  # convert to numeric
+
+    return(list(pow1=pow1)  )
+   
   })
   
   
+
+  output$pow2 <- renderPrint({
+    
+    d <- estimates()$pow1
+    
+    return(print(d, digits=4))
+  })
+  #___________________________
   
-  
-  
-  
-  
+ 
   
   
   
@@ -780,13 +799,7 @@ server <- shinyServer(function(input, output   ) {
   
   #________________________________________________________________________________________________
   
-  output$pow1 <- renderPrint({
-    
-    d <- estimates()$pow1
-    
-    return(print(d, digits=4))
-  })
-  #________________________________________________________________________________________________
+#________________________________________________________________________________
   
   output$dat <- renderPrint({
     
