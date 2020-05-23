@@ -327,7 +327,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                                        fluidRow(
                                          column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Table 7. Results for all the assays based in options selected")),
+                                                h4(paste("Table 7. Results for all the assays based on options selected")),
                                                 
                                          ))  
                                        
