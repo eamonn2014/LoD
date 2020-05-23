@@ -4,7 +4,6 @@
 rm(list=ls())  
 set.seed(333) # reproducible
 
-
 list.of.packages <- c("directlabels", "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
                       "MASS","R2wd","tables","gtools", "rtf", "binom", "coin", 
                       "lmec", "coxme", "lme4",  
