@@ -11,7 +11,7 @@
                           "directlabels","shiny","shinyWidgets","shinythemes","DT","shinyalert",
                           "Hmisc","reshape","rms","ggplot2","tidyverse","digest")
 
-    lapply(list.of.packages, require, character.only = TRUE)
+    lapply(list.of.packages, library, character.only = TRUE)
 
 
     #options(mc.cores = parallel::detectCores())
