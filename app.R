@@ -668,10 +668,11 @@ server <- shinyServer(function(input, output   ) {
     #-----------------------------------------------------------------------------------------
     J<-unique(assa)
     k<-length(J)
-    
-    dnam = list( Assay =J, component=1:4 )
+
+    dnam = list( Assay =J, component=c("dilution", "LoD Cq",  "LoD Lower 95% CI", "LoD Upper 95% CI") )
     pow1 <- array( NA, dim=sapply(dnam, length), dimnames=dnam )
     
+
     for ( i in 1:k) { 
       
       dd<-d99[(d99$assay %in% J[i]),] 
@@ -683,11 +684,13 @@ server <- shinyServer(function(input, output   ) {
       names(LoD.countn )[names(LoD.countn) == "Freq"]<-c("N")
       LoD.count <- merge(LoD.count, LoD.countn, by.x = c("pool", "run", "dil"))
       LoD.count$dil <- as.numeric(LoD.count$dil)
+      
       dd$assay <-factor(dd$assay)
       
       # set verified and established lob values
-      fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link="probit")), error=function(e) NULL)
-      
+      fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link=MODEL)), 
+                       error=function(e) NULL)
+    
       if (MODEL %in% "logit") {
         
         # use the logit model to obtain the dilution for required hit rate (probability)
@@ -697,7 +700,7 @@ server <- shinyServer(function(input, output   ) {
         
       } else if  ( MODEL %in% 'probit') {
         
-        #  use the prbit model to obtain the dilution for required hit rate (probability)
+        #  use the probit model to obtain the dilution for required hit rate (probability)
         intercept <-  fp.l$coefficients[1][[1]]
         beta <-       fp.l$coefficients[2][[1]]
         d.fp.l <- (qnorm(hit) - intercept) / beta
@@ -706,25 +709,35 @@ server <- shinyServer(function(input, output   ) {
       
       ## get LoD Dilution Point to predict Cq value for
       dPred <- data.frame(dil  = d.fp.l)
-      ## get LoD Dilution Point to predict Cq value for
       ##########################    Establishing LoD Cq values 
       ######## Investigating appropriate Models for Cq against dilution; reflecting Non detected observations as censored
-      ddist <- datadist(dd)
+      ddist <<- datadist(dd)
       options(datadist='ddist')
-      fbj <- pj<- NULL
       
-      fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-                control=list(iter.max =250))
+      fbj <- pj <- NULL
       
+      ## <<- assignemnt is necessary!!
+      
+      if (MODEL2 %in% "Buckley James") {
+
+        fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+                   control=list(iter.max =250))
+        
+      } else if  ( MODEL2 %in% 'Ordinary Least Squares') {
+        
+        fbj <- ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE)
+      }
+      
+      #print(fbj)
       
       #### PREDICT LoD Cq Values
-      pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
+      pj <- as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
       
       pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
       pj$upper<-pj[2][[1]] + c( 1) * 1.96*pj[3][[1]]
       names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
       
-      pow1[i,] <-  c(d.fp.l, p5(pj[1,2]), p5(pj[1,4]), p5(pj[1,5]))
+      pow1[i,] <-  c(p5(d.fp.l), p5(pj[1,2]), p5(pj[1,4]), p5(pj[1,5]))
     }
     #-----------------------------------------------------------------------------------------
     
