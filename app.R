@@ -4,11 +4,11 @@
     rm(list=ls())  
     set.seed(333) # reproducible
     
-    list.of.packages <- c("directlabels", "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
+    list.of.packages <- c( "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
                           "MASS","R2wd","tables","gtools", "rtf", "binom", "coin", 
                           "lmec", "coxme", "lme4",  
                           "arm", "rms", "plyr",
-                          "directlabels","shiny","shinyWidgets","shinythemes","DT","shinyalert",
+                          "shiny","shinyWidgets","shinythemes","DT","shinyalert",
                           "Hmisc","reshape","rms","ggplot2","tidyverse","digest")
 
     lapply(list.of.packages, library, character.only = TRUE)
