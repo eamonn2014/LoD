@@ -82,7 +82,7 @@ concentration of analyte can be routinely detected; more concretely defined as C
 of the observed Cq values for samples tested are below the LoB. 
 The corresponding Cq value can be predicted from the fit of the Buckley-James (BJ) censored data 
 regression model that takes censoring of unobserved or undetected observations into consideration rather than imputing them as 40 Cq. 
-there is an option to use ordinary least squares instead of the BJ model as a comparison.              
+There is an option to use ordinary least squares instead of the BJ model as a comparison.              
 "), 
                 
               #  h4("test  "), 
