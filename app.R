@@ -1,48 +1,46 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Rshiny ideas from on https://gallery.shinyapps.io/multi_regression/  
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rm(list=ls())  
-set.seed(333) # reproducible
+    rm(list=ls())  
+    set.seed(333) # reproducible
+    
+    list.of.packages <- c("directlabels", "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
+                          "MASS","R2wd","tables","gtools", "rtf", "binom", "coin", 
+                          "lmec", "coxme", "lme4",  
+                          "arm", "rms", "plyr",
+                          "directlabels","shiny","shinyWidgets","shinythemes","DT","shinyalert",
+                          "Hmisc","reshape","rms","ggplot2","tidyverse","digest")
 
-list.of.packages <- c("directlabels", "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
-                      "MASS","R2wd","tables","gtools", "rtf", "binom", "coin", 
-                      "lmec", "coxme", "lme4",  
-                      "arm", "rms", "plyr",
-                      "directlabels","shiny","shinyWidgets","shinythemes","DT","shinyalert",
-                      "Hmisc","reshape","rms","ggplot2","tidyverse","digest")
-
-lapply(list.of.packages, require, character.only = TRUE)
+    lapply(list.of.packages, require, character.only = TRUE)
 
 
-#options(mc.cores = parallel::detectCores())
-#rstan_options(auto_write = TRUE)
-options(max.print=1000000)    
-fig.width7 <- 600
-fig.height7 <- 570
-fig.width1 <- 1340
-
-## convenience functions
-p0 <- function(x) {formatC(x, format="f", digits=1)}
-p1 <- function(x) {formatC(x, format="f", digits=1)}
-p2 <- function(x) {formatC(x, format="f", digits=2)}
-p3 <- function(x) {formatC(x, format="f", digits=3)}
-p5 <- function(x) {formatC(x, format="f", digits=5)}
-logit <- function(p) log(1/(1/p-1))
-expit <- function(x) 1/(1/exp(x) + 1)
-inv_logit <- function(logit) exp(logit) / (1 + exp(logit))
-is.even <- function(x){ x %% 2 == 0 } # function to id. odd maybe useful
-options(width=200)
+    #options(mc.cores = parallel::detectCores())
+    #rstan_options(auto_write = TRUE)
+    options(max.print=1000000)    
+    fig.width7 <- 600
+    fig.height7 <- 570
+    fig.width1 <- 1340
+    
+    ## convenience functions
+    p0 <- function(x) {formatC(x, format="f", digits=1)}
+    p1 <- function(x) {formatC(x, format="f", digits=1)}
+    p2 <- function(x) {formatC(x, format="f", digits=2)}
+    p3 <- function(x) {formatC(x, format="f", digits=3)}
+    p5 <- function(x) {formatC(x, format="f", digits=5)}
+    logit <- function(p) log(1/(1/p-1))
+    expit <- function(x) 1/(1/exp(x) + 1)
+    inv_logit <- function(logit) exp(logit) / (1 + exp(logit))
+    is.even <- function(x){ x %% 2 == 0 } # function to id. odd maybe useful
+    options(width=200)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #  the data
-file <- "https://raw.githubusercontent.com/eamonn2014/LoD/master/LoD_data.txt"
-
-d99 <- read.delim(file)
-
-assa <- unique(d99$assay)
- 
+    file <- "https://raw.githubusercontent.com/eamonn2014/LoD/master/LoD_data.txt"
+    
+    d99 <- read.delim(file)
+    
+    assa <- unique(d99$assay)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 ui <- fluidPage(theme = shinytheme("journal"), #https://www.rdocumentation.org/packages/shinythemes/versions/1.1.2
                 # paper
                 useShinyalert(),  # Set up shinyalert
@@ -84,22 +82,21 @@ regression model that takes censoring of unobserved or undetected observations i
 There is an option to use ordinary least squares instead of the BJ model as a comparison.              
 "), 
                 
-              #  h4("test  "), 
+       
+                #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 
                 
                 sidebarLayout(
                   
                   sidebarPanel( width=3 ,
-                               # h4("Options for modelling and presentation:"),
-                                tags$style(type="text/css", ".span8 .well { background-color: #00FFFF; }"),
+                                 tags$style(type="text/css", ".span8 .well { background-color: #00FFFF; }"),
                                 
                                 
                                 actionButton(inputId='ab1', label="R Shiny ",   icon = icon("th"),   
                                              onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/LoD/master/app.R', '_blank')"), 
                                 actionButton(inputId='ab1', label="R code",   icon = icon("th"),   
                                              onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/LoD/master/LoD.R', '_blank')"),  
-                                #actionButton("resample", "Simulate a new sample"),
-                                br(),  
+                                 br(),  
                                 tags$style(".well {background-color:#b6aebd ;}"), 
                                 
                              
@@ -113,9 +110,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                     tags$style(HTML('#resample{background-color:orange}'))
                                   ),
                                   
-                                  #  textInput('Assay', 
-                                  #           div(h5(tags$span(style="color:blue", "Assay"))), "BAIA"),
-                                  
+                                   
                                   selectInput("Assay",
                                               div(h5(tags$span(style="color:blue", "Select assay"))),
                                               choices=assa, selected = assa[2]),
@@ -126,32 +121,27 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                   
                              
                                   
-                              #    tags$hr(),
-                                  textInput('LoB', 
-                                            div(h5(tags$span(style="color:blue", "Limit of Blank (Cq) used in step 1"))), "40"),
+                                   textInput('LoB', 
+                                            div(h5(tags$span(style="color:blue", "Enter limit of Blank (Cq) used in step 1"))), "40"),
                                   
-                                 # tags$hr(),
-                                  textInput('Hitrate', 
-                                            div(h5(tags$span(style="color:blue", "Hit rate used in step 1"))), "0.95"),
+                                   textInput('Hitrate', 
+                                            div(h5(tags$span(style="color:blue", "Enter hit rate used in step 1"))), "0.95"),
                               textInput('agger', 
-                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs only affects presentation : figures 1 & 3 in step 1"))), "ye"),
+                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs. This only affects presentation : figures 1 & 3 in step 1"))), "ye"),
                               
                               selectInput("MODEL2",
                                           div(h5(tags$span(style="color:blue", "Select Cq prediction modelling approach step 2"))),
                                           choices=c("Buckley James","Ordinary Least Squares"), selected = "Buckley James"),
-                               #   tags$hr(),
-                                  textInput('knots', 
-                                            div(h5(tags$span(style="color:blue", "Number of restricted cubic spline knots in Cq prediction model"))), "5"),
+                                   textInput('knots', 
+                                            div(h5(tags$span(style="color:blue", "Enter number of restricted cubic spline knots in Cq prediction model"))), "5"),
                                   
-                               #   tags$hr(),
-                                  textInput('jitt', 
-                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in Cq prediction model plot (only affects presentation)"))), "ye"),
+                                   textInput('jitt', 
+                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in Cq prediction model plot (this only affects presentation)"))), "ye"),
                                   
                                   textInput('jitt1', 
-                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for Cq prediction model plot (only affects presentation)"))), "0.3"),
+                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for Cq prediction model plot (this only affects presentation)"))), "0.3"),
                                   
-                               #   tags$hr(),
-                         
+                          
                                   
                                    div(h5("References:")),  
                               tags$a(href = "https://en.wikipedia.org/wiki/Detection_limit",  tags$span(style="color:blue", "[1] LoD wiki"),),   
@@ -187,6 +177,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                             .navbar-default .navbar-nav > li > a[data-value='t3'] {color: green;background-color: lightgreen;}
                    ")),
                               
+                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
                               tabPanel("1 Establish LoD", value=7, 
                               
@@ -209,6 +200,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                       
                                        
                               ) ,
+                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
                               tabPanel("2 BJ/Ols Model", value=3, 
                                        
@@ -222,6 +214,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                                        
                               ),
+                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
                               tabPanel("3 BJ/Ols Prediction", value=3, 
                                        
@@ -236,6 +229,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                                        
                               ),
+                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
                               tabPanel("4 LoD", value=7, 
                                        
@@ -256,7 +250,6 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                               ) ,
                  
-                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               tabPanel("5 Probit/Logit Plot", value=3, 
                                        
@@ -316,11 +309,9 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                               ) ,
                               
-                          
-                      
-
-
-                              tabPanel("8 Results", value=3, 
+                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                              
+                                tabPanel("8 Results", value=3, 
                                        
                                     
                                        fluidRow(
@@ -340,6 +331,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                                        
                               ),
+                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
                               tabPanel("9 Data", value=3, 
                                        DT::dataTableOutput("table1"),
@@ -347,28 +339,23 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                               ) ,
                               
 
-tabPanel("10 Notes/Conclusion", value=3, 
-         
-         
-
-         
-         
-         h4(paste("We have shown how to establish LoD values for the assays. 
-                                        It is advisable to perform summary plots and investigate missing data before the main analysis.
-                                        Briefly, for each dilution, score 0 or 1 if Cq is above or below LoB. 
-                                        Fit a logit/probit model to the aforementioned hit rate 
-                                        information and calculate using the estimated intercept and regression coefficients the
-                                        dilution that corresponds to the 'hit rate', that is probability of 
-                                        detection, typically 95%. Finally, armed with the dilution estimate, fit a flexible
-                                        model to the data (one that accounts for censoring preferably and non linearity) and predict 
-                                         the Cq and its standard error. 
-  Notice the hit rate is 100% for most of the dilution points 
-in the case of Assay01 and Assay08. The model parameters are unstable and result 
-in occurrence of fitted probabilities being numerically 0 or 1. The near 100% hit rate for most of the dilution points for Assay01 and Assay08 
-implies that the experimental data for the two assays do not meet the desirable CLSI EP17 A2 
-hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays. 
-                                                 In our example the modelling choices do not substantially affect the final estimates.")), 
-         
+                              tabPanel("10 Notes/Conclusion", value=3, 
+                     h4(paste("We have shown how to establish LoD values for the assays. 
+                                                    It is advisable to perform summary plots and investigate missing data before the main analysis.
+                                                    Briefly, for each dilution, score 0 or 1 if Cq is above or below LoB. 
+                                                    Fit a logit/probit model to the aforementioned hit rate 
+                                                    information and calculate using the estimated intercept and regression coefficients the
+                                                    dilution that corresponds to the 'hit rate', that is probability of 
+                                                    detection, typically 95%. Finally, armed with the dilution estimate, fit a flexible
+                                                    model to the data (one that accounts for censoring preferably and non linearity) and predict 
+                                                     the Cq and its standard error. 
+              Notice the hit rate is 100% for most of the dilution points 
+            in the case of Assay01 and Assay08. The model parameters are unstable and result 
+            in occurrence of fitted probabilities being numerically 0 or 1. The near 100% hit rate for most of the dilution points for Assay01 and Assay08 
+            implies that the experimental data for the two assays do not meet the desirable CLSI EP17 A2 
+            hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays. 
+                                                             In our example the modelling choices do not substantially affect the final estimates.")), 
+                     
          
          h4(paste("Note we could select models based on lower AIC, for example, the probit link may support that the Gaussian cdf provides 
 a better description of the data, perhaps we could also examine residual explained variation to help make decisions.")),
@@ -390,30 +377,11 @@ a better description of the data, perhaps we could also examine residual explain
                   
                   
            )),
-)
-
-                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                              
-                              # tabPanel("9 BJ Model plot alt.", value=3, 
-                              #          
-                              #          div(plotOutput("plot2", width=fig.width1, height=fig.height7)),  
-                              #          
-                              #          
-                              #          fluidRow(
-                              #            column(width = 7, offset = 0, style='padding:1px;',
-                              #                   h4(paste("Figure 5. Finding the dilution that satisfies the hit rate")), 
-                              #            )),
-                              #          
-                              #)
-                              
-                              
-                              #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   END NEW   
-                            )
-                            #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                  )
-                ) 
-                #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~end tab panels 
-)
+                        )
+                      )
+                    )
+                  ) 
+              )
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -462,22 +430,13 @@ server <- shinyServer(function(input, output   ) {
     
     #--------------------------------------------------------------------------------------------------------------------
     # some tabulations
-    # cat("Tabulation of Sample by Sample Pool Identification and Dilution series")
     tab1 <- (with(dd, addmargins(table(dil, pool))))
-    
-    # cat("Count of Detected Cq by Pool, Run and Dilution series")
     tab2 <- (ftable(xtabs(count ~ pool + run + dil, data = dd))) 
-    
-    # cat("Count of Number of Samples by Pool, Run and Dilution Series")
     tab3 <- (ftable(xtabs( ~ pool + run + dil, data = dd))) 
     #--------------------------------------------------------------------------------------------------------------------
-    
-  
-    
     ### Model detection count against dilution using logit model (probit gives slightly lower LoD for some assays)
     fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link=MODEL)), error=function(e) NULL)
-    
-   
+
     if (agger %in% "yes") {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #  we can show we get the sam results even if aggregate, as our model does not include covariates
@@ -552,12 +511,11 @@ server <- shinyServer(function(input, output   ) {
     pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
     pj$upper<-pj[2][[1]] + c(1) * 1.96*pj[3][[1]]
     names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
-    # for some reason rms::Predict is not working so I have to use predict see lot 2
     Pre <- rms::Predict(fbj)
     #--------------------------------------------------------------------------------------------------------------
 
-    ### Plot count vs dilution point 
-   plot1 <- plot(x=LoD.count$dil, y=LoD.count$Freq/LoD.count$N, pch="o"
+    # Plot count vs dilution point 
+    plot1 <- plot(x=LoD.count$dil, y=LoD.count$Freq/LoD.count$N, pch="o"
          ,xlab=paste0("Dilution Series (LoD dil. series estimate ",p2(d.fp.l),", denoted by red vertical dashed line)"), ylab="Hit Rate"
          , main=paste("Plot of Hit Rates against Dilution Series for \n", assay, 
                       " with Line of Estimated Dilution from the Fitted ",MODEL," Model\n using limit of blank of ", LoB,"Cq", sep= ""), cex.main=1.3, bty='n')
@@ -569,8 +527,6 @@ server <- shinyServer(function(input, output   ) {
     abline(v=(d.fp.l), lwd=1, col="red", lty=2) 
   
     #--------------------------------------------------------------------------------------------------------------
-    #pj <- Pre
-    
     pl <-  ggplot(Pre , anova=NULL, pval=FALSE, ylim.=c(20,45)) 
     
     plot2 <- pl + geom_point(data=dd, aes(x = dil, y = CT )) +
@@ -593,17 +549,13 @@ server <- shinyServer(function(input, output   ) {
       
     } 
     #-------------------------------------------------------------------------------------
-
     ddx <- merge(ddx, Pre)
     zz <- ddx
     WW <-jitt1
-    
     #-------------------------------------------------------------------------------------
     
     plot3 <- ggplot() +
-      
       geom_blank(data=zz, aes(x=dil, y=CT)) +
-      
       geom_point(data=zz ,
                  aes(x=dil,y=CT) ,
                  colour="black",  size=.3,   
@@ -661,9 +613,9 @@ server <- shinyServer(function(input, output   ) {
     #-----------------------------------------------------------------------------------------
     return(list(plot1=plot1, plot2=plot2, 
                 
-                fbj=fbj,  pj=pj, dd=dd, 
+              fbj=fbj,  pj=pj, dd=dd, 
                 
-                plot3=plot3 , Pre=Pre ,
+              plot3=plot3 , Pre=Pre ,
                 
               tab1=tab1, tab2=tab2, tab3=tab3  
               
@@ -793,8 +745,7 @@ server <- shinyServer(function(input, output   ) {
     hit <- as.numeric(unlist(strsplit(input$Hitrate,",")))
     
     knots <- as.numeric(unlist(strsplit(input$knots,",")))
- 
-  
+
     HTML(paste0( 
       "For the above table, for all the assays a limit of blank of  "
       , tags$span(style="color:purple",  LoB)  ,
@@ -814,7 +765,6 @@ server <- shinyServer(function(input, output   ) {
   })
   
   #________________________________________________________________________________________________
- 
   #https://stackoverflow.com/questions/44205137/plotting-the-same-output-in-two-tabpanels-in-shiny
   output$plot1 <- output$plot4  <- renderPlot({         
    
@@ -837,8 +787,7 @@ server <- shinyServer(function(input, output   ) {
 
   })
   
-  #________________________________________________________________________________________________
-  
+#________________________________________________________________________________________________
 #________________________________________________________________________________
   
   output$dat <- renderPrint({
@@ -896,7 +845,6 @@ server <- shinyServer(function(input, output   ) {
     foo<-  d99
     
     namez <- c("Assay", "Biological Sample", "Sample Pool", "Dilution", "Run", "Replicate", "Cq" )
-    
     
     names(foo) <- namez
     rownames(foo) <- NULL
