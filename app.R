@@ -37,7 +37,7 @@
 #  the data
     file <- "https://raw.githubusercontent.com/eamonn2014/LoD/master/LoD_data.txt"
     
-    d99 <- read.delim(file)
+    d99 <- read.csv(file, sep="")
     
     assa <- unique(d99$assay)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -844,7 +844,7 @@ server <- shinyServer(function(input, output   ) {
     
     foo<-  d99
     
-    namez <- c("Assay", "Biological Sample", "Sample Pool", "Dilution", "Run", "Replicate", "Cq" )
+    namez <- c("Assay",  "Sample Pool", "Dilution", "Run", "Replicate", "Cq" )
     
     names(foo) <- namez
     rownames(foo) <- NULL

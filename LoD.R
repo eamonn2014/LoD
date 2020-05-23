@@ -36,11 +36,15 @@ options(width=200)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #  the data
+# LoD_data <- read.delim("~/LoD/LoD_data.txt")
+# write.table(LoD_data, file = 'LoD_data.txt', sep = ' ', row.names = FALSE)
+
 file <- "https://raw.githubusercontent.com/eamonn2014/LoD/master/LoD_data.txt"
 
-d99 <- read.delim(file)
+d99 <- read.csv(file, sep="")
 
 assa <- unique(d99$assay)
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -257,7 +261,7 @@ print(plot3)
 
 foo<-  d99
 
-namez <- c("Assay", "Biological Sample", "Sample Pool", "Dilution", "Run", "Replicate", "Cq" )
+namez <- c("Assay", "Sample Pool", "Dilution", "Run", "Replicate", "Cq" )
 
 
 names(foo) <- namez
@@ -285,101 +289,99 @@ datatable(foo,
 #    columns= namez,   
 #    digits=c(0,1,1,1,1,1,1,2,2)  )
 
- #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# run all assays in one go using a loop, basically repeating above code inside a loop
 
- 
+assay <- "Assay02"
+MODEL <- "logit"
+MODEL2 <- "Buckley James"
+LoB <- 39
+hit <- .95
+knots <- 5
+
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+
+assa <- unique(d99$assay)
+
+J<-unique(assa)
+k<-length(J)
+
+dnam = list( Assay =J, component=c("dilution", "LoD Cq",  "LoD Lower 95% CI", "LoD Upper 95% CI") )
+pow1 <- array( NA, dim=sapply(dnam, length), dimnames=dnam )
+
+
+for ( i in 1:k) { 
   
-  assay <- "Assay02"
-  MODEL <- "logit"
-  MODEL2 <- "Buckley James"
-  LoB <- 39
-  hit <- .95
-  knots <- 5
- 
+  dd<-d99[(d99$assay %in% J[i]),] 
+  dd$count<-ifelse( dd$CT<LoB,1,0)      
+  dd$count[is.na(dd$count)] <- 0
   
-  #-----------------------------------------------------------------------------------------
-  #-----------------------------------------------------------------------------------------
+  LoD.count <- as.data.frame(ftable(xtabs(count ~ pool + run + dil, data =dd)))
+  LoD.countn <- as.data.frame(ftable(xtabs( ~ pool + run + dil, data =  dd)))
+  names(LoD.countn )[names(LoD.countn) == "Freq"]<-c("N")
+  LoD.count <- merge(LoD.count, LoD.countn, by.x = c("pool", "run", "dil"))
+  LoD.count$dil <- as.numeric(LoD.count$dil)
   
-  assa <- unique(d99$assay)
+  dd$assay <-factor(dd$assay)
   
-  J<-unique(assa)
-  k<-length(J)
+  # set verified and established lob values
+  fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link=MODEL)), 
+                   error=function(e) NULL)
   
-  dnam = list( Assay =J, component=c("dilution", "LoD Cq",  "LoD Lower 95% CI", "LoD Upper 95% CI") )
-  pow1 <- array( NA, dim=sapply(dnam, length), dimnames=dnam )
-  
-  
-  for ( i in 1:k) { 
+  if (MODEL %in% "logit") {
     
-    dd<-d99[(d99$assay %in% J[i]),] 
-    dd$count<-ifelse( dd$CT<LoB,1,0)      
-    dd$count[is.na(dd$count)] <- 0
+    # use the logit model to obtain the dilution for required hit rate (probability)
+    intercept <-  fp.l$coefficients[1][[1]]
+    beta <-       fp.l$coefficients[2][[1]]
+    d.fp.l <- (qlogis(hit) - intercept) / beta
     
-    LoD.count <- as.data.frame(ftable(xtabs(count ~ pool + run + dil, data =dd)))
-    LoD.countn <- as.data.frame(ftable(xtabs( ~ pool + run + dil, data =  dd)))
-    names(LoD.countn )[names(LoD.countn) == "Freq"]<-c("N")
-    LoD.count <- merge(LoD.count, LoD.countn, by.x = c("pool", "run", "dil"))
-    LoD.count$dil <- as.numeric(LoD.count$dil)
+  } else if  ( MODEL %in% 'probit') {
     
-    dd$assay <-factor(dd$assay)
-    
-    # set verified and established lob values
-    fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link=MODEL)), 
-                     error=function(e) NULL)
-    
-    if (MODEL %in% "logit") {
-      
-      # use the logit model to obtain the dilution for required hit rate (probability)
-      intercept <-  fp.l$coefficients[1][[1]]
-      beta <-       fp.l$coefficients[2][[1]]
-      d.fp.l <- (qlogis(hit) - intercept) / beta
-      
-    } else if  ( MODEL %in% 'probit') {
-      
-      #  use the probit model to obtain the dilution for required hit rate (probability)
-      intercept <-  fp.l$coefficients[1][[1]]
-      beta <-       fp.l$coefficients[2][[1]]
-      d.fp.l <- (qnorm(hit) - intercept) / beta
-      
-    }
-    
-    # get LoD Dilution Point to predict Cq value for
-    dPred <- data.frame(dil  = d.fp.l)
-    # Establishing LoD Cq values 
-    # Investigating appropriate Models for Cq against dilution; reflecting Non detected observations as censored
-    ddist <<- datadist(dd)
-    options(datadist='ddist')
-    
-    fbj <- pj <- NULL
-    
-    ## <<- assignemnt is not necessary?
-    
-    if (MODEL2 %in% "Buckley James") {
-      
-     # invisible(capture.output(   # stops convergence error appearing in Rshiny app
-        fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-                   control=list(iter.max =250)))   
-      #))
-      
-    } else if  ( MODEL2 %in% 'Ordinary Least Squares') {
-      
-      fbj <- (ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE))
-      
-    }
-    
-    # 
-    #### PREDICT LoD Cq Values
-    pj <- as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
-    pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
-    pj$upper<-pj[2][[1]] + c( 1) * 1.96*pj[3][[1]]
-    names(pj) <-c("dil", "LoD Cq", "SE", "LoD Cq Lower 95% CI", "LoD Cq Upper 95% CI")
-    pow1[i,] <-  c(p2(d.fp.l), p2(pj[1,2]), p2(pj[1,4]), p2(pj[1,5]))
+    #  use the probit model to obtain the dilution for required hit rate (probability)
+    intercept <-  fp.l$coefficients[1][[1]]
+    beta <-       fp.l$coefficients[2][[1]]
+    d.fp.l <- (qnorm(hit) - intercept) / beta
     
   }
   
-  #-----------------------------------------------------------------------------------------
-  pow1 <- plyr::adply(pow1, 1, c)  # convert to numeric
+  # get LoD Dilution Point to predict Cq value for
+  dPred <- data.frame(dil  = d.fp.l)
+  # Establishing LoD Cq values 
+  # Investigating appropriate Models for Cq against dilution; reflecting Non detected observations as censored
+  ddist <<- datadist(dd)
+  options(datadist='ddist')
   
-  print(pow1)
+  fbj <- pj <- NULL
   
-  warnings()
+  ## <<- assignemnt is not necessary?
+  
+  if (MODEL2 %in% "Buckley James") {
+    
+    # invisible(capture.output(   # stops convergence error appearing in Rshiny app
+    fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+               control=list(iter.max =250)))   
+    #))
+    
+  } else if  ( MODEL2 %in% 'Ordinary Least Squares') {
+    
+    fbj <- (ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE))
+    
+  }
+  
+  # 
+  #### PREDICT LoD Cq Values
+  pj <- as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
+  pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
+  pj$upper<-pj[2][[1]] + c( 1) * 1.96*pj[3][[1]]
+  names(pj) <-c("dil", "LoD Cq", "SE", "LoD Cq Lower 95% CI", "LoD Cq Upper 95% CI")
+  pow1[i,] <-  c(p2(d.fp.l), p2(pj[1,2]), p2(pj[1,4]), p2(pj[1,5]))
+  
+}
+
+#-----------------------------------------------------------------------------------------
+pow1 <- plyr::adply(pow1, 1, c)  # convert to numeric
+
+print(pow1)
+
+warnings()
