@@ -290,38 +290,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                               
                          
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                              
-                              tabPanel("7 Conclusion", value=3, 
-                                        
-                                        h4(paste("We have shown how to establish LoD values for the assays. 
-                                        It is advisable to perform summary plots and investigate missing data before the main analysis.
-                                        Briefly, for each dilution, score 0 or 1 if Cq is above or below LoB. 
-                                        Fit a logit/probit model to the aformentioned hit rate 
-                                        information and calculate using the estimated intercept and regression coefficients the
-                                        dilution that corresponds to the 'hit rate', that is probability of 
-                                        detection, typically 95%. Finally, armed with the dilution estimate, fit a flexible
-                                        model to the data (one that accounts for censoring preferably and non linearity) and predict 
-                                         the Cq and its standard error. 
-  Notice the hit rate is 100% for most of the dilution points 
-in the case of Assay01 and Assay08. The model parameters are unstable and result 
-in occurrence of fitted probabilities being numerically 0 or 1. The near 100% hit rate for most of the dilution points for Assay01 and Assay08 
-implies that the experimental data for the two assays do not meet the desirable CLSI EP17 A2 
-hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays. 
-                                                 In our example the modelling choices do not substantially affect the final estimates.")), 
-                                         
-                                       
-h4(paste("Note we could select models based on lower AIC, for example, the probit link may support that the Gaussian cdf provides 
-a better description of the data, perhaps also  examine residual explained variation.")),
-                                       
-                                       
-
-                                        fluidRow(
-                                          column(width = 7, offset = 0, style='padding:1px;',
-                                              
-                                                 
-                                          )),
-                               ),
-                              
+                            
                               
                               tabPanel("8 Tabulations", value=7, 
                                        
@@ -348,26 +317,59 @@ a better description of the data, perhaps also  examine residual explained varia
                               ) ,
                               
                           
-                              tabPanel("9 Data", value=3, 
-                                       DT::dataTableOutput("table1"),
-                                       
-                              ) ,
-#
+                      
 
 
-                              tabPanel("10 Results", value=3, 
+                              tabPanel("9 Results", value=3, 
                                        
                                        div( verbatimTextOutput("pow2") ),
                                        
                                        
                                        fluidRow(
                                          column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Table 7. Results")),
+                                                h4(paste("Table 7. Results for all the assays based in options selected")),
                                                 
                                          ))  
                                        
                                        
-                              )
+                              ),
+                              
+                              tabPanel("10 Data", value=3, 
+                                       DT::dataTableOutput("table1"),
+                                       
+                              ) ,
+                              
+
+tabPanel("11 Conclusion", value=3, 
+         
+         h4(paste("We have shown how to establish LoD values for the assays. 
+                                        It is advisable to perform summary plots and investigate missing data before the main analysis.
+                                        Briefly, for each dilution, score 0 or 1 if Cq is above or below LoB. 
+                                        Fit a logit/probit model to the aforementioned hit rate 
+                                        information and calculate using the estimated intercept and regression coefficients the
+                                        dilution that corresponds to the 'hit rate', that is probability of 
+                                        detection, typically 95%. Finally, armed with the dilution estimate, fit a flexible
+                                        model to the data (one that accounts for censoring preferably and non linearity) and predict 
+                                         the Cq and its standard error. 
+  Notice the hit rate is 100% for most of the dilution points 
+in the case of Assay01 and Assay08. The model parameters are unstable and result 
+in occurrence of fitted probabilities being numerically 0 or 1. The near 100% hit rate for most of the dilution points for Assay01 and Assay08 
+implies that the experimental data for the two assays do not meet the desirable CLSI EP17 A2 
+hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays. 
+                                                 In our example the modelling choices do not substantially affect the final estimates.")), 
+         
+         
+         h4(paste("Note we could select models based on lower AIC, for example, the probit link may support that the Gaussian cdf provides 
+a better description of the data, perhaps also  examine residual explained variation.")),
+         
+         
+         
+         fluidRow(
+           column(width = 7, offset = 0, style='padding:1px;',
+                  
+                  
+           )),
+)
 
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
@@ -670,9 +672,7 @@ server <- shinyServer(function(input, output   ) {
 
     dnam = list( Assay =J, component=c("dilution", "LoD Cq",  "LoD Lower 95% CI", "LoD Upper 95% CI") )
     pow1 <- array( NA, dim=sapply(dnam, length), dimnames=dnam )
-    
-    # oldw <- getOption("warn")
-    # options(warn = -1)
+ 
     
     for ( i in 1:k) { 
       
@@ -708,10 +708,10 @@ server <- shinyServer(function(input, output   ) {
         
       }
       
-      ## get LoD Dilution Point to predict Cq value for
+      # get LoD Dilution Point to predict Cq value for
       dPred <- data.frame(dil  = d.fp.l)
-      ##########################    Establishing LoD Cq values 
-      ######## Investigating appropriate Models for Cq against dilution; reflecting Non detected observations as censored
+      # Establishing LoD Cq values 
+      # Investigating appropriate Models for Cq against dilution; reflecting Non detected observations as censored
       ddist <<- datadist(dd)
       options(datadist='ddist')
       
@@ -721,25 +721,23 @@ server <- shinyServer(function(input, output   ) {
 
       if (MODEL2 %in% "Buckley James") {
     
-        invisible(capture.output(
+        invisible(capture.output(   # stops convergence error appearing in Rshiny app
           fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
                                        control=list(iter.max =250)))   
           ))
         
       } else if  ( MODEL2 %in% 'Ordinary Least Squares') {
         
-        fbj <- (ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE))
+         fbj <- (ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE))
          
       }
 
       # 
       #### PREDICT LoD Cq Values
       pj <- as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
-      
       pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
       pj$upper<-pj[2][[1]] + c( 1) * 1.96*pj[3][[1]]
       names(pj) <-c("dil", "LoD Cq", "SE", "LoD Cq Lower 95% CI", "LoD Cq Upper 95% CI")
-      
       pow1[i,] <-  c(p2(d.fp.l), p2(pj[1,2]), p2(pj[1,4]), p2(pj[1,5]))
      
     }
@@ -747,7 +745,7 @@ server <- shinyServer(function(input, output   ) {
     #-----------------------------------------------------------------------------------------
     pow1 <- plyr::adply(pow1, 1, c)  # convert to numeric
 
-    return(list(pow1=pow1)  )
+    return(list(pow1=pow1))
    
   })
   
