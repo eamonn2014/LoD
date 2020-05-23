@@ -210,7 +210,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                               ) ,
                               
-                              tabPanel("2 Buckley James (BJ) or Ols Model", value=3, 
+                              tabPanel("2 BJ/Ols Model", value=3, 
                                        
                                          div( verbatimTextOutput("datx") ),
                                         
@@ -223,7 +223,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                               ),
                               
-                              tabPanel("3 BJ or Ols Model Predictions", value=3, 
+                              tabPanel("3 BJ/Ols Predictions", value=3, 
                                        
                                        div( verbatimTextOutput("dat") ),
                                       
@@ -275,7 +275,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                               
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
-                              tabPanel("6 BJ or Ols Model plot", value=3, 
+                              tabPanel("6 BJ/Ols Model plot", value=3, 
                                        
                                        div(plotOutput("plot3", width=fig.width1, height=fig.height7)),  
                                 
@@ -300,14 +300,20 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                         information and calculate using the estimated intercept and regression coefficients the
                                         dilution that corresponds to the 'hit rate', that is probability of 
                                         detection, typically 95%. Finally, armed with the dilution estimate, fit a flexible
-                                        model to data (one that accounts for censoring preferably and non linearity) and predict 
+                                        model to the data (one that accounts for censoring preferably and non linearity) and predict 
                                          the Cq and its standard error. 
   Notice the hit rate is 100% for most of the dilution points 
 in the case of Assay01 and Assay08. The model parameters are unstable and result 
 in occurrence of fitted probabilities being numerically 0 or 1. The near 100% hit rate for most of the dilution points for Assay01 and Assay08 
 implies that the experimental data for the two assays do not meet the desirable CLSI EP17 A2 
-hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays. In our example the modelling choices do not substantially affect the final estimates.")), 
+hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays. 
+                                                 In our example the modelling choices do not substantially affect the final estimates.")), 
                                          
+                                       
+h4(paste("Note we could select models based on lower AIC, for example, the probit link may support that the Gaussian cdf provides 
+a better description of the data, perhaps also  examine residual explained variation.")),
+                                       
+                                       
 
                                         fluidRow(
                                           column(width = 7, offset = 0, style='padding:1px;',
@@ -316,10 +322,53 @@ hit rate criteria. Therefore the LoD estimation would benefit from further dilut
                                           )),
                                ),
                               
-                              tabPanel("8 Data", value=3, 
+                              
+                              tabPanel("8 Tabulations", value=7, 
+                                       
+                                       fluidRow(
+                                         column(width = 6, offset = 0, style='padding:1px;',
+                                                
+                                                div( verbatimTextOutput("tab1") ),
+                                                h4(paste("Table 4. Tabulation of Sample by Sample Pool Identification and Dilution series")), 
+                                                div( verbatimTextOutput("tab2") ),
+                                                h4(paste("Table 5. Count of Detected Cq by Pool, Run and Dilution series")), 
+                                         ) ,
+                                         
+                                         
+                                         fluidRow(
+                                           column(width = 5, offset = 0, style='padding:1px;',
+                                                  
+                                                  
+                                                  div( verbatimTextOutput("tab3") ),
+                                                  h4(paste("Table 6. Count of Number of Samples by Pool, Run and Dilution Serie")), 
+                                                  
+                                           ))),
+                                       
+                                       
+                              ) ,
+                              
+                          
+                              tabPanel("9 Data", value=3, 
                                        DT::dataTableOutput("table1"),
                                        
-                              ) # ,
+                              ) ,
+#
+
+
+                              tabPanel("10 Results", value=3, 
+                                       
+                                       div( verbatimTextOutput("pow1") ),
+                                       
+                                       
+                                       fluidRow(
+                                         column(width = 7, offset = 0, style='padding:1px;',
+                                                h4(paste("Table 7. Results")),
+                                                
+                                         ))  
+                                       
+                                       
+                              )
+
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
                               # tabPanel("9 BJ Model plot alt.", value=3, 
@@ -359,6 +408,7 @@ server <- shinyServer(function(input, output   ) {
     assay <- (unlist(strsplit(input$Assay,",")))
     
     MODEL <- (unlist(strsplit(input$MODEL,",")))
+    
     MODEL2 <- (unlist(strsplit(input$MODEL2,",")))
     
     LoB <- as.numeric(unlist(strsplit(input$LoB,",")))
@@ -366,13 +416,13 @@ server <- shinyServer(function(input, output   ) {
     hit <- as.numeric(unlist(strsplit(input$Hitrate,",")))
     
     jitt <- (unlist(strsplit(input$jitt,",")))
+    
     jitt1 <- as.numeric(unlist(strsplit(input$jitt1,",")))
     
     knots <- as.numeric(unlist(strsplit(input$knots,",")))
     
     agger <- (unlist(strsplit(input$agger,",")))
    
- 
     #--------------------------------------------------------------------------------------------------------------------
     
     dd <- d99[d99$assay %in% assay,]
@@ -381,12 +431,25 @@ server <- shinyServer(function(input, output   ) {
     dd$count<-ifelse( dd$CT<LoB,1,0)      
     dd$count[is.na(dd$count)] <- 0
     
-    
     LoD.count <- as.data.frame(ftable(xtabs(count ~ pool + run + dil, data =dd)))
     LoD.countn <- as.data.frame(ftable(xtabs( ~ pool + run + dil, data =  dd)))
     names(LoD.countn )[names(LoD.countn) == "Freq"]<-c("N")
     LoD.count <- merge(LoD.count, LoD.countn, by.x = c("pool", "run", "dil"))
     LoD.count$dil <- as.numeric(LoD.count$dil)
+    
+    #--------------------------------------------------------------------------------------------------------------------
+    # some tabulations
+    # cat("Tabulation of Sample by Sample Pool Identification and Dilution series")
+    tab1 <- (with(dd, addmargins(table(dil, pool))))
+    
+    # cat("Count of Detected Cq by Pool, Run and Dilution series")
+    tab2 <- (ftable(xtabs(count ~ pool + run + dil, data = dd))) 
+    
+    # cat("Count of Number of Samples by Pool, Run and Dilution Series")
+    tab3 <- (ftable(xtabs( ~ pool + run + dil, data = dd))) 
+    #--------------------------------------------------------------------------------------------------------------------
+    
+  
     
     ### Model detection count against dilution using logit model (probit gives slightly lower LoD for some assays)
     fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link=MODEL)), error=function(e) NULL)
@@ -573,11 +636,111 @@ server <- shinyServer(function(input, output   ) {
             ) 
     
     #-----------------------------------------------------------------------------------------
-    return(list(plot1=plot1, plot2=plot2, fbj=fbj,  pj=pj, dd=dd, plot3=plot3 , Pre=Pre ))  
+    return(list(plot1=plot1, plot2=plot2, 
+                
+                fbj=fbj,  pj=pj, dd=dd, 
+                
+                plot3=plot3 , Pre=Pre ,
+                
+              tab1=tab1, tab2=tab2, tab3=tab3  
+              
+                ))  
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   })
 
   #________________________________________________________________________________________________
+  
+  ## loop over all assays for a summary presentation
+  
+  estimates <- reactive({
+    
+    MODEL <- (unlist(strsplit(input$MODEL,",")))
+    
+    MODEL2 <- (unlist(strsplit(input$MODEL2,",")))
+    
+    LoB <- as.numeric(unlist(strsplit(input$LoB,",")))
+    
+    hit <- as.numeric(unlist(strsplit(input$Hitrate,",")))
+  
+    knots <- as.numeric(unlist(strsplit(input$knots,",")))
+ 
+    #--------------------------------------------------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------------------
+    J<-unique(assa)
+    k<-length(J)
+    
+    dnam = list( Assay =J, component=1:4 )
+    pow1 <- array( NA, dim=sapply(dnam, length), dimnames=dnam )
+    
+    for ( i in 1:k) { 
+      
+      dd<-d99[(d99$assay %in% J[i]),] 
+      dd$count<-ifelse( dd$CT<LoB,1,0)      
+      dd$count[is.na(dd$count)] <- 0
+      
+      LoD.count <- as.data.frame(ftable(xtabs(count ~ pool + run + dil, data =dd)))
+      LoD.countn <- as.data.frame(ftable(xtabs( ~ pool + run + dil, data =  dd)))
+      names(LoD.countn )[names(LoD.countn) == "Freq"]<-c("N")
+      LoD.count <- merge(LoD.count, LoD.countn, by.x = c("pool", "run", "dil"))
+      LoD.count$dil <- as.numeric(LoD.count$dil)
+      dd$assay <-factor(dd$assay)
+      
+      # set verified and established lob values
+      fp.l <- tryCatch(glm(Freq/N ~ dil, weights=N, data=LoD.count, family=binomial(link="probit")), error=function(e) NULL)
+      
+      if (MODEL %in% "logit") {
+        
+        # use the logit model to obtain the dilution for required hit rate (probability)
+        intercept <-  fp.l$coefficients[1][[1]]
+        beta <-       fp.l$coefficients[2][[1]]
+        d.fp.l <- (qlogis(hit) - intercept) / beta
+        
+      } else if  ( MODEL %in% 'probit') {
+        
+        #  use the prbit model to obtain the dilution for required hit rate (probability)
+        intercept <-  fp.l$coefficients[1][[1]]
+        beta <-       fp.l$coefficients[2][[1]]
+        d.fp.l <- (qnorm(hit) - intercept) / beta
+        
+      }
+      
+      ## get LoD Dilution Point to predict Cq value for
+      dPred <- data.frame(dil  = d.fp.l)
+      ## get LoD Dilution Point to predict Cq value for
+      ##########################    Establishing LoD Cq values 
+      ######## Investigating appropriate Models for Cq against dilution; reflecting Non detected observations as censored
+      ddist <- datadist(dd)
+      options(datadist='ddist')
+      fbj <- pj<- NULL
+      
+      fbj <- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+                control=list(iter.max =250))
+      
+      
+      #### PREDICT LoD Cq Values
+      pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
+      
+      pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
+      pj$upper<-pj[2][[1]] + c( 1) * 1.96*pj[3][[1]]
+      names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
+      
+      pow1[i,] <-  c(d.fp.l, p5(pj[1,2]), p5(pj[1,4]), p5(pj[1,5]))
+    }
+    #-----------------------------------------------------------------------------------------
+    
+    return(list(pow1=pow1))  
+    
+  })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   #________________________________________________________________________________________________
  
   #https://stackoverflow.com/questions/44205137/plotting-the-same-output-in-two-tabpanels-in-shiny
@@ -602,7 +765,14 @@ server <- shinyServer(function(input, output   ) {
 
   })
   
-
+  #________________________________________________________________________________________________
+  
+  output$pow1 <- renderPrint({
+    
+    d <- estimates()$pow1
+    
+    return(print(d, digits=4))
+  })
   #________________________________________________________________________________________________
   
   output$dat <- renderPrint({
@@ -627,6 +797,33 @@ server <- shinyServer(function(input, output   ) {
     return(print(d, digits=4))
   })
    
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  output$tab1 <- renderPrint({
+    
+    d <- Loddp()$tab1
+    
+    return(print(d, digits=4))
+  })
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  output$tab2 <- renderPrint({
+    
+    d <- Loddp()$tab2
+    
+    return(print(d, digits=4))
+  })
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  output$tab3 <- renderPrint({
+    
+    d <- Loddp()$tab3
+    
+    return(print(d, digits=4))
+  })
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   output$table1 <- DT::renderDataTable({
     
