@@ -718,22 +718,14 @@ server <- shinyServer(function(input, output   ) {
       fbj <- pj <- NULL
       
       ## <<- assignemnt is not necessary?
-   
 
       if (MODEL2 %in% "Buckley James") {
     
-        invisible(capture.output( fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-                                       control=list(iter.max =250)))      ))
+        invisible(capture.output(
+          fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
+                                       control=list(iter.max =250)))   
+          ))
         
-        # suppressWarnings(suppressMessages(fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-        #            control=list(iter.max =250))) )) 
-               
-        # suppressMessages({ 
-        #   
-        #   fbj <- (bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
-        #              control=list(iter.max =250))) 
-        #   })
-        # 
       } else if  ( MODEL2 %in% 'Ordinary Least Squares') {
         
         fbj <- (ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE))
@@ -746,9 +738,9 @@ server <- shinyServer(function(input, output   ) {
       
       pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
       pj$upper<-pj[2][[1]] + c( 1) * 1.96*pj[3][[1]]
-      names(pj) <-c("dil", "LoD Cq", "SE", "LoD Lower 95% CI", "LoD Upper 95% CI")
+      names(pj) <-c("dil", "LoD Cq", "SE", "LoD Cq Lower 95% CI", "LoD Cq Upper 95% CI")
       
-      pow1[i,] <-  c(p5(d.fp.l), p5(pj[1,2]), p5(pj[1,4]), p5(pj[1,5]))
+      pow1[i,] <-  c(p2(d.fp.l), p2(pj[1,2]), p2(pj[1,4]), p2(pj[1,5]))
      
     }
      
