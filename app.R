@@ -57,7 +57,7 @@ ui <- fluidPage(theme = shinytheme("journal"), #https://www.rdocumentation.org/p
                 
                 h4("
                 
-The objective of this analysis is to show how to establish the limit of detection for qPCR assays designed to quantify RNA expression 
+The objective of this app is to show an analysis approach that can be used to establish the limit of detection for qPCR assays designed to quantify RNA expression 
 from a biological sample when the total amount of RNA
 input is constant but the percentage of mutant RNA content is varied [1,2]. An LoD experiment was simulated for nine 
 qPCR mutation assays. The outcome of this analysis will identify the concentration of mutant at which 95% of observations are detected, 
@@ -66,22 +66,23 @@ content will be predicted from a fitted model to determine a Cq LoD threshold fo
                 
                 h4("
 Methods: A study was designed in accordance with CLSI EP17-A2, with the exception we assume a single lot 
-of reagents is used [3]. RNA was derived from three independent pools of cell 
-lines that are lowly positive as determined by a preliminary experiment to determine 'lowly positive' 
-samples for each of the nine assay mutations was used. Each biomarker positive pool sample was
-replicated seven times on each testing day (run) to generate a total of 21 measurements and a total of 42 Cq values (2 Cq values per measurment) per dilution value. 
-The mutant RNA content was subjected to a 2-fold serial dilution encompassing 8 dilution points. It can be seen the more dilute, the higher the Cq 
-                   value, also note the qPCR machine has a technical upper limit of 40 Cq."),
+of reagents [3]. RNA is derived from three independent pools of cell 
+lines that are 'lowly positive' determined by a preliminary experiment to identify the samples for each of the nine assay mutations. For each assay, each biomarker positive pool sample is
+then assayed 7 times on each of 3 testing days (run) to generate a total of 21 measurements and a total of 42 Cq values (2 Cq values per measurment) per dilution value. 
+The mutant RNA content is subject to a 2-fold serial dilution encompassing 8 dilution points. It can be seen the more dilute, the higher the Cq 
+                   value, note the qPCR machine has a technical upper limit of 40 Cq."),
                 
                 h4("
-Data Analysis: Each assay LoD was established using a regression modelling (logit/probit) approach (EP17-A2). The Cq value was used to determine the assay
+Data Analysis: Each assay LoD is established using a two step approach; binary regression modelling (logit/probit as in EP17-A2) followed by linear regression modelling. 
+The Cq value was used to determine the assay
 detection calls based on the assay specific verified or established limit of blank (LoB) thresholds. The hit rate (percentage of detection calls)
 was calculated from the total replicates tested at each dilution concentration, and modelled against the dilution using the logit/probit model. 
 It should be noted that the logit and probit models are essentially the same. The LoD will be established as the Cq value at which the lowest 
 concentration of analyte can be routinely detected; more concretely defined as Cq value corresponding to the dilution concentration at which 95% 
-of the observed Cq values for samples tested are below the LoB. The LoD dilution value was determined from the regression line of the fitted logit/probit model. 
+of the observed Cq values for samples tested are below the LoB. 
 The corresponding Cq value can be predicted from the fit of the Buckley-James (BJ) censored data 
-regression model that takes censoring of unobserved or undetected observations into consideration rather than imputing them as 40 Cq. Ordinary least squares can be used also as a comparison.              
+regression model that takes censoring of unobserved or undetected observations into consideration rather than imputing them as 40 Cq. 
+there is an option to use ordinary least squares instead of the BJ model as a comparison.              
 "), 
                 
               #  h4("test  "), 
@@ -145,10 +146,10 @@ regression model that takes censoring of unobserved or undetected observations i
                                   
                                #   tags$hr(),
                                   textInput('jitt', 
-                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in Cq prediction model plot"))), "ye"),
+                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in Cq prediction model plot (only affects presentation)"))), "ye"),
                                   
                                   textInput('jitt1', 
-                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for Cq prediction model plot"))), "0.3"),
+                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for Cq prediction model plot (only affects presentation)"))), "0.3"),
                                   
                                #   tags$hr(),
                          
@@ -282,8 +283,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                        
                                        fluidRow(
                                          column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 4. Predicting the LoD Cq at the dilution  
-                                                         that satisfied the required hit rate ; horizontal jitter added to data points to aid visualisation")), 
+                                                h4(paste("Figure 4. Predicting the LoD Cq at the dilution that satisfied the required hit rate; horizontal jitter added to data points to aid visualisation")), 
                                          )),
                                        
                                        
@@ -295,18 +295,19 @@ regression model that takes censoring of unobserved or undetected observations i
                               tabPanel("7 Conclusion", value=3, 
                                         
                                         h4(paste("We have shown how to establish LoD values for the assays. 
-                                        Briefly, step 1, For each dilution, score 0 or 1 if Cq is above or below LoB. 
-                                        Step 2 fit a logit/probit model to the aformentioned hit rate 
+                                        It is advisable to perform summary plots and investigate missing data before the main analysis.
+                                        Briefly, for each dilution, score 0 or 1 if Cq is above or below LoB. 
+                                        Fit a logit/probit model to the aformentioned hit rate 
                                         information and calculate using the estimated intercept and regression coefficients the
                                         dilution that corresponds to the 'hit rate', that is probability of 
-                                        detection, typically 95%. Step 3 armed with the dilution estimate, fit a flexible
-                                        model to data (one that accounts for censoring and non linearity) and predict 
-                                         the Cq and standard error. 
+                                        detection, typically 95%. Finally, armed with the dilution estimate, fit a flexible
+                                        model to data (one that accounts for censoring preferably and non linearity) and predict 
+                                         the Cq and its standard error. 
   Notice the hit rate is 100% for most of the dilution points 
 in the case of Assay01 and Assay08. The model parameters are unstable and result 
 in occurrence of fitted probabilities being numerically 0 or 1. The near 100% hit rate for most of the dilution points for Assay01 and Assay08 
 implies that the experimental data for the two assays do not meet the desirable CLSI EP17 A2 
-hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays.")), 
+hit rate criteria. Therefore the LoD estimation would benefit from further dilutions for these two assays. In our example the modelling choices do not substantially affect the final estimates.")), 
                                          
 
                                         fluidRow(
