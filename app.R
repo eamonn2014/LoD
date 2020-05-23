@@ -188,7 +188,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                    ")),
                               
                               
-                              tabPanel("1 Establishing LoD", value=7, 
+                              tabPanel("1 Establish LoD", value=7, 
                               
                                        fluidRow(
                                          column(width = 6, offset = 0, style='padding:1px;',
@@ -223,7 +223,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                        
                               ),
                               
-                              tabPanel("3 BJ/Ols Predictions", value=3, 
+                              tabPanel("3 BJ/Ols Prediction", value=3, 
                                        
                                        div( verbatimTextOutput("dat") ),
                                       
@@ -292,7 +292,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             
                               
-                              tabPanel("8 Tabulations", value=7, 
+                              tabPanel("7 Tabulation", value=7, 
                                        
                                        fluidRow(
                                          column(width = 6, offset = 0, style='padding:1px;',
@@ -309,7 +309,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                                   
                                                   
                                                   div( verbatimTextOutput("tab3") ),
-                                                  h4(paste("Table 6. Count of Number of Samples by Pool, Run and Dilution Serie")), 
+                                                  h4(paste("Table 6. Count of Number of Samples by Pool, Run and Dilution series")), 
                                                   
                                            ))),
                                        
@@ -320,27 +320,38 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                       
 
 
-                              tabPanel("9 Results", value=3, 
+                              tabPanel("8 Results", value=3, 
                                        
-                                       div( verbatimTextOutput("pow2") ),
+                                    
+                                       fluidRow(
+                                         
+                                         column(width = 5, offset = 0, style='padding:1px;',
+                                               # h4(paste("Table 7. Results for all the assays based on options selected")),
+                                                div( verbatimTextOutput("pow2") ),
+                                         ))  ,
                                        
                                        
                                        fluidRow(
-                                         column(width = 7, offset = 0, style='padding:1px;',
+                                          
+                                         column(width =5, offset = 0, style='padding:1px;',
                                                 h4(paste("Table 7. Results for all the assays based on options selected")),
-                                                
+                                                h4(htmlOutput("textWithNumber",) ),
                                          ))  
                                        
                                        
                               ),
                               
-                              tabPanel("10 Data", value=3, 
+                              tabPanel("9 Data", value=3, 
                                        DT::dataTableOutput("table1"),
                                        
                               ) ,
                               
 
-tabPanel("11 Conclusion", value=3, 
+tabPanel("10 Notes/Conclusion", value=3, 
+         
+         
+
+         
          
          h4(paste("We have shown how to establish LoD values for the assays. 
                                         It is advisable to perform summary plots and investigate missing data before the main analysis.
@@ -360,8 +371,18 @@ hit rate criteria. Therefore the LoD estimation would benefit from further dilut
          
          
          h4(paste("Note we could select models based on lower AIC, for example, the probit link may support that the Gaussian cdf provides 
-a better description of the data, perhaps also  examine residual explained variation.")),
+a better description of the data, perhaps we could also examine residual explained variation to help make decisions.")),
          
+         h4(paste("Tab 1 presents the estimated LoD in one place for the selected assay based on the options selected.")),
+         h4(paste("Tab 2 presents regression table from the Cq prediction model that is selected.")),
+         h4(paste("Tab 3 presents the Cq predictions for the dilutions from the Cq prediction model that is selected.")),
+         h4(paste("Tab 4 presents the estimated LoD with 95% confidence.")),
+         h4(paste("Tab 5 presents a repeat of the tab 1 logit or probit model prediction plot but larger in size.")),
+         h4(paste("Tab 6 presents a repeat of the tab 1 Cq prediction model plot but larger in size.")),
+         h4(paste("Tab 7 presents tabulations to show the experimental design")),
+         h4(paste("Tab 8 presents the results for all the assays. This is produced by independent R code using a loop.")),
+         h4(paste("Tab 9 presents a listing of the data.")),
+         h4(paste("Tab 10 presents a little explanation of the tabs and some general conclusions and observations.")),
          
          
          fluidRow(
@@ -651,7 +672,7 @@ server <- shinyServer(function(input, output   ) {
   })
 
   #_____________________________________________________________________________________________
-  ## loop over all assays for a summary presentation
+  ## loop over all assays for a summary presentation, repeat the analysis essentially
   
   estimates <- reactive({
     
@@ -761,7 +782,36 @@ server <- shinyServer(function(input, output   ) {
   
  
   
+  output$textWithNumber <- renderText({ 
+
+    MODEL <- (unlist(strsplit(input$MODEL,",")))
+    
+    MODEL2 <- (unlist(strsplit(input$MODEL2,",")))
+    
+    LoB <- as.numeric(unlist(strsplit(input$LoB,",")))
+    
+    hit <- as.numeric(unlist(strsplit(input$Hitrate,",")))
+    
+    knots <- as.numeric(unlist(strsplit(input$knots,",")))
+ 
   
+    HTML(paste0( 
+      "For the above table for all the assays a limit of blank of  "
+      , tags$span(style="color:purple",  LoB)  ,
+      " Cq is applied and a "
+      , tags$span(style="color:purple",  MODEL)  ,
+      " model used to estimate the dilution point which satisfies the "
+      
+      , tags$span(style="color:purple",  hit ) ,
+      
+      " hit rate. We then fit a "
+      , tags$span(style="color:purple",  MODEL2 ) ,
+      " regression model using restricted cubic splines with "
+      , tags$span(style="color:purple",  knots ) ,"
+      knots to predict the limit of detection with 95% confidence."
+    ))    
+    
+  })
   
   #________________________________________________________________________________________________
  
