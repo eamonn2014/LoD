@@ -4,15 +4,54 @@
     rm(list=ls())  
     set.seed(333) # reproducible
     
-    list.of.packages <- c( "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
-                          "MASS","R2wd","tables","gtools", "rtf", "binom", "coin", 
-                          "lmec", "coxme", "lme4",  
-                          "arm", "rms", "plyr",
-                          "shiny","shinyWidgets","shinythemes","DT","shinyalert",
-                          "Hmisc","reshape","rms","ggplot2","tidyverse","digest")
-
-    lapply(list.of.packages, library, character.only = TRUE)
-
+    # list.of.packages <- c( "ggplot2" , "xtable", "doBy", "VCA", "reshape", "nlme", "vcd","car",
+    #                       "MASS","R2wd","tables","gtools", "rtf", "binom", "coin", 
+    #                       "lmec", "coxme", "lme4",  
+    #                       "arm", "rms", "plyr",
+    #                       "shiny","shinyWidgets","shinythemes","DT","shinyalert",
+    #                       "Hmisc","reshape", "tidyverse","digest")
+    # 
+    # lapply(list.of.packages, library, character.only = TRUE)
+    library("shiny")
+    library("shinyWidgets")
+    library("shinythemes")
+    library("DT")
+    library("shinyalert")
+    library("Hmisc")
+    library("reshape")
+    library("tidyverse")
+    library("digest")
+    library("ggplot2")
+    library("xtable")
+    library("doBy")
+    library("VCA")
+    library("reshape")
+    library("nlme")
+    library("vcd")
+    library("car")
+    library("MASS")
+    library("R2wd")
+    library("tables")
+    library("gtools")
+    library("rtf")
+    library("binom")
+    library("coin")
+    library("lmec")
+    library("coxme")
+    library("lme4")
+    
+    library("arm")  
+    library("rms")
+    library("plyr")
+    library("lme4")
+    library("lme4")
+    library("lme4")
+    
+    
+    
+    
+    
+    
 
     #options(mc.cores = parallel::detectCores())
     #rstan_options(auto_write = TRUE)
