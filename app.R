@@ -291,7 +291,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                          column(width = 6, offset = 0, style='padding:1px;',
                                                 
                                                 div( verbatimTextOutput("tab1") ),
-                                                h4(paste("Table 4. Tabulation of Sample by Sample Pool Identification and Dilution series")), 
+                                                h4(paste("Table 4. Tabulation of Sample Pool Identification and Dilution series")), 
                                                 div( verbatimTextOutput("tab2") ),
                                                 h4(paste("Table 5. Count of Detected Cq by Pool, Run and Dilution series")), 
                                          ) ,
@@ -302,7 +302,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                                   
                                                   
                                                   div( verbatimTextOutput("tab3") ),
-                                                  h4(paste("Table 6. Count of Number of Samples by Pool, Run and Dilution series")), 
+                                                  h4(paste("Table 6. Count of Number of data points by Pool, Run and Dilution series")), 
                                                   
                                            ))),
                                        
