@@ -80,8 +80,8 @@ was calculated from the total replicates tested at each dilution concentration, 
 It should be noted that the logit and probit models are essentially the same. The LoD will be established as the Cq value at which the lowest 
 concentration of analyte can be routinely detected; more concretely defined as Cq value corresponding to the dilution concentration at which 95% 
 of the observed Cq values for samples tested are below the LoB. The LoD dilution value was determined from the regression line of the fitted logit/probit model. 
-The corresponding Cq value was predicted from the fit of the Buckley-James (BJ) censored data 
-regression model that takes censoring of unobserved or undetected observations into consideration rather than imputing them as 40 Cq.                
+The corresponding Cq value can be predicted from the fit of the Buckley-James (BJ) censored data 
+regression model that takes censoring of unobserved or undetected observations into consideration rather than imputing them as 40 Cq. Ordinary least squares can be used also as a comparison.              
 "), 
                 
               #  h4("test  "), 
@@ -121,29 +121,34 @@ regression model that takes censoring of unobserved or undetected observations i
                                               choices=assa, selected = assa[2]),
                                   
                                   selectInput("MODEL",
-                                              div(h5(tags$span(style="color:blue", "Select modelling approach"))),
+                                              div(h5(tags$span(style="color:blue", "Select modelling approach step 1"))),
                                               choices=c("logit","probit"), selected = "logit"),
+                                  
+                             
                                   
                               #    tags$hr(),
                                   textInput('LoB', 
-                                            div(h5(tags$span(style="color:blue", "Limit of Blank (Cq)"))), "40"),
+                                            div(h5(tags$span(style="color:blue", "Limit of Blank (Cq) used in step 1"))), "40"),
                                   
                                  # tags$hr(),
                                   textInput('Hitrate', 
-                                            div(h5(tags$span(style="color:blue", "Hit rate"))), "0.95"),
+                                            div(h5(tags$span(style="color:blue", "Hit rate used in step 1"))), "0.95"),
                               textInput('agger', 
-                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs only affects figures 1 & 3"))), "ye"),
+                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs only affects presentation : figures 1 & 3 in step 1"))), "ye"),
                               
+                              selectInput("MODEL2",
+                                          div(h5(tags$span(style="color:blue", "Select Cq prediction modelling approach step 2"))),
+                                          choices=c("Buckley James","Ordinary Least Squares"), selected = "Buckley James"),
                                #   tags$hr(),
                                   textInput('knots', 
-                                            div(h5(tags$span(style="color:blue", "Number of restricted cubic spline knots in BJ model"))), "5"),
+                                            div(h5(tags$span(style="color:blue", "Number of restricted cubic spline knots in Cq prediction model"))), "5"),
                                   
                                #   tags$hr(),
                                   textInput('jitt', 
-                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in BJ Model plot"))), "ye"),
+                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in Cq prediction model plot"))), "ye"),
                                   
                                   textInput('jitt1', 
-                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for BJ Model plot"))), "0.3"),
+                                            div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for Cq prediction model plot"))), "0.3"),
                                   
                                #   tags$hr(),
                          
@@ -189,7 +194,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                          column(width = 6, offset = 0, style='padding:1px;',
                                                 
                                                 div(plotOutput("plot1",  width=fig.width7, height=fig.height7)),
-                                                h4(paste("Figure 1. Estimating the dilution that satisfies the hit rate")), 
+                                                h4(paste("Figure 1. Step 1, Estimating the dilution that satisfies the hit rate")), 
                                          ) ,
                                          
                                          
@@ -197,13 +202,15 @@ regression model that takes censoring of unobserved or undetected observations i
                                            column(width = 5, offset = 0, style='padding:1px;',
                                                   
                                                   div(plotOutput("plot3x",  width=fig.width7, height=fig.height7)) ,
-                                                  h4(paste("Figure 2. Fitted BJ model, finding the Cq reading back from estimated dilution.\n Horizontal jitter added to improve visualisation.")),
+                                                  h4(paste("Figure 2. Step 2, Fitted Prediction model, predicting the LoD Cq at the dilution that satisfied the required hit rate.\n Horizontal jitter added to improve visualisation.")),
+                                                  
+                                                     
                                            ))),
                                       
                                        
                               ) ,
                               
-                              tabPanel("2 Buckley James (BJ) Model", value=3, 
+                              tabPanel("2 Buckley James (BJ) or Ols Model", value=3, 
                                        
                                          div( verbatimTextOutput("datx") ),
                                         
@@ -216,7 +223,7 @@ regression model that takes censoring of unobserved or undetected observations i
                                        
                               ),
                               
-                              tabPanel("3 BJ Model Predictions", value=3, 
+                              tabPanel("3 BJ or Ols Model Predictions", value=3, 
                                        
                                        div( verbatimTextOutput("dat") ),
                                       
@@ -258,7 +265,8 @@ regression model that takes censoring of unobserved or undetected observations i
                                        
                                        fluidRow(
                                          column(width = 12, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 3. Fitted BJ model. Finding the LoD Cq by reading back from the dilution (estimated from either logistic or probit regression) that satisfies the required hit rate ; horizontal jitter added to data points to aid visualisation")),
+                                                h4(paste("Figure 3. Finding the dilution that satisfies the hit rate (estimated from either logistic or probit regression)
+                                                          ")),
                                                 
                                          )),
                                        
@@ -267,14 +275,15 @@ regression model that takes censoring of unobserved or undetected observations i
                               
                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                               
-                              tabPanel("6 BJ Model plot", value=3, 
+                              tabPanel("6 BJ or Ols Model plot", value=3, 
                                        
                                        div(plotOutput("plot3", width=fig.width1, height=fig.height7)),  
                                 
                                        
                                        fluidRow(
                                          column(width = 7, offset = 0, style='padding:1px;',
-                                                h4(paste("Figure 4. Finding the dilution that satisfies the hit rate")), 
+                                                h4(paste("Figure 4. Predicting the LoD Cq at the dilution  
+                                                         that satisfied the required hit rate ; horizontal jitter added to data points to aid visualisation")), 
                                          )),
                                        
                                        
@@ -350,6 +359,7 @@ server <- shinyServer(function(input, output   ) {
     assay <- (unlist(strsplit(input$Assay,",")))
     
     MODEL <- (unlist(strsplit(input$MODEL,",")))
+    MODEL2 <- (unlist(strsplit(input$MODEL2,",")))
     
     LoB <- as.numeric(unlist(strsplit(input$LoB,",")))
     
@@ -435,9 +445,22 @@ server <- shinyServer(function(input, output   ) {
     
     #--------------------------------------------------------------------------------------------------------------
     ## <<- assignemnt is necessary!!
+
+    if (MODEL2 %in% "Buckley James") {
+  
+    tag <- "BJ"
+      
     fbj <<- bj(Surv(CT, count) ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE, link="identity",
               control=list(iter.max =250))
     
+    } else if  ( MODEL2 %in% 'Ordinary Least Squares') {
+
+    tag <- "Ols"  
+      
+    fbj <<- ols(CT ~ rcs(dil,knots) , data=dd, x=TRUE, y=TRUE)
+    }
+    #--------------------------------------------------------------------------------------------------------------
+  
     pj<-as.data.frame(cbind(dPred, predicted = predict(fbj, type="lp", newdata=dPred, se.fit=T)))
     
     pj$lower<-pj[2][[1]] + c(-1) * 1.96*pj[3][[1]]
@@ -468,7 +491,7 @@ server <- shinyServer(function(input, output   ) {
       xlab(paste0("Dilution Series (LoD dil. series estimate ",dPred,", denoted by vertical dashed line)")) + ylab("Cq value") +
       geom_hline(yintercept=LoB, colour="gray", linetype="solid") +
       geom_hline(yintercept=pj[1,2], colour="blue", linetype="dashed") +
-      ggtitle(paste("Assay ",assay," Plot of Cq vs. Dilution Series with the Fitted BJ Model \nLoD Dilution Point ="
+      ggtitle(paste("Assay ",assay," Plot of Cq vs. Dilution Series with the Fitted",tag,"Model \nLoD Dilution Point ="
                     , p2(d.fp.l), "; LoD Cq Value = ", p2(pj[1,2]), ", 95%CI (", p2(pj[1,4]), ",", p2(pj[1,5])     ,")", sep=" "))
    
     #__________________________________________________________________________________________
@@ -511,7 +534,7 @@ server <- shinyServer(function(input, output   ) {
       
       ggtitle(paste("N=",
                     length(!is.na(zz$dil)),  
-                    ":",assay,", Cq vs. Dilution Series and fitted BJ Model \nLoD Dilution Point ="
+                    ":",assay,", Cq vs. Dilution Series and fitted",tag,"Model \nLoD Dilution Point ="
                     , p2(d.fp.l), "; LoD Cq = ", p2(pj[1,2]), ", 95%CI (", p2(pj[1,4]), ",", p2(pj[1,5])     ,")", sep=" ")) +
     
       geom_ribbon(data=zz, 
