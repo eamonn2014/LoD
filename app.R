@@ -796,7 +796,7 @@ server <- shinyServer(function(input, output   ) {
  
   
     HTML(paste0( 
-      "For the above table for all the assays a limit of blank of  "
+      "For the above table, for all the assays a limit of blank of  "
       , tags$span(style="color:purple",  LoB)  ,
       " Cq is applied and a "
       , tags$span(style="color:purple",  MODEL)  ,
@@ -808,7 +808,7 @@ server <- shinyServer(function(input, output   ) {
       , tags$span(style="color:purple",  MODEL2 ) ,
       " regression model using restricted cubic splines with "
       , tags$span(style="color:purple",  knots ) ,"
-      knots to predict the limit of detection with 95% confidence."
+      knots to predict the limit of detection Cq with 95% confidence from the estimated dilution point."
     ))    
     
   })
