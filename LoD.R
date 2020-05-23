@@ -56,7 +56,7 @@ hit <- .95
 jitt <- "yes"
 jitt1 <- .3
 knots <- 5
-agger <- "no"
+agger <- "yes"
 
 #--------------------------------------------------------------------------------------------------------------------
 
@@ -81,7 +81,8 @@ if (agger %in% "yes") {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #  we can show we get the sam results even if aggregate, as our model does not include covariates
   LoD.count<- LoD.count[,c("dil","Freq","N")]
-  
+  detach(package:plyr)    
+  library(dplyr)
   LoD.count <- LoD.count %>%
     group_by(dil) %>%
     summarize(Freq=sum(Freq), N=sum(N))
