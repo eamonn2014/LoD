@@ -39,7 +39,7 @@ options(width=200)
 # LoD_data <- read.delim("~/LoD/LoD_data.txt")
 # write.table(LoD_data, file = 'LoD_data.txt', sep = ' ', row.names = FALSE)
 
-file <- "https://raw.githubusercontent.com/eamonn2014/LoD/master/LoD_data.txt"
+file <- "https://raw.githubusercontent.com/eamonn1/LoD/master/LoD_data.txt"
 
 d99 <- read.csv(file, sep="")
 
