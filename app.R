@@ -159,18 +159,25 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                   
                                    textInput('Hitrate', 
                                             div(h5(tags$span(style="color:blue", "Enter hit rate used in step 1"))), "0.95"),
-                              textInput('agger', 
-                                        div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to aggregate over pools and runs. This only affects presentation : figures 1 & 3 in step 1"))), "ye"),
+                     
+                              
+                              selectInput("agger",
+                                          div(h5(tags$span(style="color:blue", "Select 'yes' explicitly to aggregate over pools and runs. This only affects presentation : figures 1 & 3 in step 1"))),
+                                          choices=c("yes","no"), selected = "yes"),
+                              
                               
                               selectInput("MODEL2",
                                           div(h5(tags$span(style="color:blue", "Select Cq prediction modelling approach step 2"))),
                                           choices=c("Buckley James","Ordinary Least Squares"), selected = "Buckley James"),
+                              
                                    textInput('knots', 
                                             div(h5(tags$span(style="color:blue", "Enter number of restricted cubic spline knots in Cq prediction model"))), "5"),
-                                  
-                                   textInput('jitt', 
-                                            div(h5(tags$span(style="color:blue", "Enter 'yes' explicitly to add vertical jitter to 40 Cq data points in Cq prediction model plot (this only affects presentation)"))), "ye"),
-                                  
+                               
+                              selectInput("jitt",
+                                          div(h5(tags$span(style="color:blue", "Select 'yes' explicitly to add vertical jitter to 40 Cq data points in Cq prediction model plot (this only affects presentation)"))),
+                                          choices=c("yes","no"), selected = "yes"),
+                              
+                              
                                   textInput('jitt1', 
                                             div(h5(tags$span(style="color:blue", "Enter magnitude of jitter for Cq prediction model plot (this only affects presentation)"))), "0.3"),
                                   
