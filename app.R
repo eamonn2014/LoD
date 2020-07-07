@@ -126,7 +126,7 @@ There is an option to use ordinary least squares instead of the BJ model as a co
                                 
                                 
                                 actionButton(inputId='ab1', label="R Shiny ",   icon = icon("th"),   
-                                             onclick ="window.open('https://raw.githubusercontent.com/eamonn1/LoD/master/app.R', '_blank')"), 
+                                             onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/LoD/master/app.R', '_blank')"), 
                                 actionButton(inputId='ab1', label="R code",   icon = icon("th"),   
                                              onclick ="window.open('https://raw.githubusercontent.com/eamonn1/LoD/master/LoD.R', '_blank')"),  
                                  br(),  
